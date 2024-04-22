@@ -257,15 +257,14 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	}
 
 	public static function addon_feeds() {
-		$form_id = rgget( 'id' );
-
-		$addons = self::registered_addons();
-		$slugs  = array_keys( $addons );
-
+		$form_id     = rgget( 'id' );
+		$addons      = self::registered_addons();
+		$slugs       = array_keys( $addons );
 		$feeds       = GFAPI::get_feeds( null, $form_id );
 		$addon_feeds = [];
-		foreach ( $feeds  as $feed ) {
-			if ( in_array( $feed['addon_slug'], $slugs ) ) {
+
+		foreach ($feeds  as $feed ) {
+			if ( isset( $feed['addon_slug'] ) &&  in_array( $feed['addon_slug'], $slugs ) ) {
 				$feed['title'] = $addons[ $feed['addon_slug'] ]->get_short_title();
 				$addon_feeds[] = $feed;
 			}
@@ -275,9 +274,9 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	}
 
 	public static function registered_addons() {
-		$addons = GFAddOn::get_registered_addons();
-
+		$addons      = GFAddOn::get_registered_addons();
 		$feed_addons = [];
+
 		foreach ( $addons as $addon ) {
 			$addon = call_user_func( [ $addon, 'get_instance' ] );
 			if ( $addon instanceof GFFeedAddOn && ! $addon instanceof GFPaymentAddOn ) {

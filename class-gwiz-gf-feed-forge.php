@@ -263,7 +263,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		$feeds       = GFAPI::get_feeds( null, $form_id );
 		$addon_feeds = [];
 
-		foreach ($feeds  as $feed ) {
+		foreach ( $feeds  as $feed ) {
 			if ( isset( $feed['addon_slug'] ) &&  in_array( $feed['addon_slug'], $slugs ) ) {
 				$feed['title'] = $addons[ $feed['addon_slug'] ]->get_short_title();
 				$addon_feeds[] = $feed;
@@ -299,7 +299,48 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		$entries = rgpost( 'leadIds' );
 		$feeds   = json_decode( rgpost( 'feeds' ) );
 
-		self::process_entry_feeds( $entries, $feeds, $form_id );
+		// Credits: Gravity Forms
+		if ( 0 == $leads ) {
+			// get all the lead ids for the current filter / search
+			$filter = rgpost( 'filter' );
+			$search = rgpost( 'search' );
+			$star   = $filter == 'star' ? 1 : null;
+			$read   = $filter == 'unread' ? 0 : null;
+			$status = in_array( $filter, array( 'trash', 'spam' ) ) ? $filter : 'active';
+
+			$search_criteria['status'] = $status;
+
+			if ( $star ) {
+				$search_criteria['field_filters'][] = array( 'key' => 'is_starred', 'value' => (bool) $star );
+			}
+			if ( ! is_null( $read ) ) {
+				$search_criteria['field_filters'][] = array( 'key' => 'is_read', 'value' => (bool) $read );
+			}
+
+			$search_field_id = rgpost( 'fieldId' );
+
+			if ( isset( $_POST['fieldId'] ) && $_POST['fieldId'] !== '' ) {
+				$key            = $search_field_id;
+				$val            = $search;
+				$strpos_row_key = strpos( $search_field_id, '|' );
+				if ( $strpos_row_key !== false ) { //multi-row
+					$key_array = explode( '|', $search_field_id );
+					$key       = $key_array[0];
+					$val       = $key_array[1] . ':' . $val;
+				}
+				$search_criteria['field_filters'][] = array(
+					'key'      => $key,
+					'operator' => rgempty( 'operator', $_POST ) ? 'is' : rgpost( 'operator' ),
+					'value'    => $val,
+				);
+			}
+
+			$leads = GFFormsModel::search_lead_ids( $form_id, $search_criteria );
+		} else {
+			$leads = ! is_array( $leads ) ? array( $leads ) : $leads;
+		}
+
+		self::process_entry_feeds( $leads, $feeds, $form_id );
 
 		wp_send_json_success();
 	}

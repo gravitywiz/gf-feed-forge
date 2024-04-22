@@ -8,7 +8,7 @@ jQuery(function($) {
 		const defaultModalOptions = '';
 		const entryIds = getLeadIds();
 
-		if (entryIds.length && action == 'process_feeds') {
+		if (entryIds.length != 0 && action == 'process_feeds') {
 			resetProcessFeedsUI();
 			tb_show(
 				GFFF_ADMIN.modalHeader,

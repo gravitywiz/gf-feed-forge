@@ -201,7 +201,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 				'entryString'       => __( 'entry', 'gf-feed-forge' ),
 				'entriesString'     => __( 'entries', 'gf-feed-forge' ),
 				'modalHeader'       => __( 'Process Feeds', 'gf-feed_forge' ),
-				'successMsg'        => __( 'Feeds for %s were processed successfully.', 'gf-feed-forge' ),
+				'successMsg'        => __( 'Feeds for %s were successfully added to the queue for processing.', 'gf-feed-forge' ),
 				'noSelectedFeedMsg' => __( 'You must select at least one type of feed to process.', 'gf-feed_forge' ),
 			]
 		);
@@ -366,10 +366,18 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			$entry = GFAPI::get_entry( $entry_id );
 			foreach ( $feeds as $feed_id ) {
 				$feed = GFAPI::get_feed( $feed_id );
-				if ( is_array( $feed ) ) {
-					$instance = $addons[ $feed['addon_slug'] ];
-					$instance->process_feed( $feed, $entry, $form );
+				if ( ! is_array( $feed ) ) {
+					continue;
 				}
+
+				gf_feed_processor()->push_to_queue(
+					array(
+						'addon' => $addons[ $feed['addon_slug'] ],
+						'feed'  => $feed,
+						'entry_id' => $entry['id'],
+						'form_id'  => $form['id'],
+					)
+				);
 			}
 		}
 	}

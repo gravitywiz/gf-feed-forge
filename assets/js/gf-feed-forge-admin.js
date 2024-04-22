@@ -11,7 +11,7 @@ jQuery(function($) {
 		if (entryIds.length != 0 && action == 'process_feeds') {
 			resetProcessFeedsUI();
 			tb_show(
-				`<div class='tb-title'><div class='tb-title__logo'></div><div class='tb-title__text'><div class='tb-title__main'>${GFFF_ADMIN.modalHeader}</div><div class='tb-title__sub'></div></div></div>`,
+				`<div class='tb-title'><div class='tb-title__logo'></div><div class='tb-title__text'><div class='tb-title__main'>${GFFF_ADMIN.modalHeader}</div><div class='tb-title__sub'>${GFFF_ADMIN.modalDescription}</div></div></div>`,
 				'#TB_inline?width=600&height=455&inlineId=feeds_modal_container',
 				'',
 			);

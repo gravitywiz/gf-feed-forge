@@ -201,8 +201,9 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 				'entryString'       => __( 'entry', 'gf-feed-forge' ),
 				'entriesString'     => __( 'entries', 'gf-feed-forge' ),
 				'modalHeader'       => __( 'Process Feeds', 'gf-feed_forge' ),
+				'modalDescription'  => __( 'Specify which feeds you would like to process for the selected entries.', 'gf-feed_forge' ),
 				'successMsg'        => __( 'Feeds for %s were successfully added to the queue for processing.', 'gf-feed-forge' ),
-				'noSelectedFeedMsg' => __( 'You must select at least one type of feed to process.', 'gf-feed_forge' ),
+				'noSelectedFeedMsg' => __( 'You must select at least one feed.', 'gf-feed_forge' ),
 			]
 		);
 	}
@@ -228,11 +229,10 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 						<?php
 						if ( empty( $feeds ) || ! is_array( $feeds ) ) {
 							?>
-							<p class="description"><?php esc_html_e( 'You cannot process feeds for these entries because this form does not currently have any feeds configured.', 'gf-feed-forge' ); ?></p>
+							<p class="description"><?php esc_html_e( 'You must configure at least one feed for this form before using Feed Forge.', 'gf-feed-forge' ); ?></p>
 							<?php
 						} else {
 							?>
-							<p class="description"><?php esc_html_e( 'Specify which feeds you would like to process for the selected entries.', 'gf-feed-forge' ); ?></p>
 							<?php
 							foreach ( $feeds as $feed ) {
 								?>
@@ -244,8 +244,8 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 							?>
 							<div class="modal_footer">
 								<div class="panel-buttons">
-									<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" />
-									<span id="feeds_please_wait_container" style="display:none; margin-left: 5px;">
+									<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" style="vertical-align:middle;" />
+									<span id="feeds_please_wait_container" style="display:none; margin-left: 5px;vertical-align:middle;">
 										<img src="<?php echo GFCommon::get_base_url(); ?>/images/spinner.svg" />
 									</span>
 								</div>

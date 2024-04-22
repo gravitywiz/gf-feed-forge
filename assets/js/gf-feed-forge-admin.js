@@ -11,8 +11,8 @@ jQuery(function($) {
 		if (entryIds.length != 0 && action == 'process_feeds') {
 			resetProcessFeedsUI();
 			tb_show(
-				GFFF_ADMIN.modalHeader,
-				'#TB_inline?width=350&amp;inlineId=feeds_modal_container',
+				`<div class='tb-title'><div class='tb-title__logo'></div><div class='tb-title__text'><div class='tb-title__main'>${GFFF_ADMIN.modalHeader}</div><div class='tb-title__sub'></div></div></div>`,
+				'#TB_inline?width=600&height=455&inlineId=feeds_modal_container',
 				'',
 			);
 			return false;
@@ -43,7 +43,7 @@ jQuery(function($) {
 			ajaxurl,
 			{
 				action: 'gf_process_feeds',
-				nonce: GFFF_ADMIN.nonce,
+				gf_process_feeds: GFFF_ADMIN.nonce,
 				feeds: $.toJSON(selectedFeeds),
 				leadIds: leadIds,
 				formId: GFFF_ADMIN.formId,

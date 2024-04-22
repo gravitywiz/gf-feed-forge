@@ -223,7 +223,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		?>
 		<div id="feeds_modal_container" style="display:none;">
 			<div id="feeds_container">
-				<div id="post_tag" class="tagsdiv">
+				<div class="panel-block-tabs__body--settings">
 					<div id="process_feeds_options">
 						<?php
 						if ( empty( $feeds ) || ! is_array( $feeds ) ) {
@@ -242,10 +242,14 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 								<?php
 							}
 							?>
-							<input type="button" name="feed_process" id="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" />
-							<span id="feeds_please_wait_container" style="display:none; margin-left: 5px;">
-								<i class='gficon-gravityforms-spinner-icon gficon-spin'></i> <?php esc_html_e( 'Processing...', 'gf-feed-forge' ); ?>
-							</span>
+							<div class="modal_footer">
+								<div class="panel-buttons">
+									<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" />
+									<span id="feeds_please_wait_container" style="display:none; margin-left: 5px;">
+										<img src="<?php echo GFCommon::get_base_url() ?>/images/spinner.svg" />
+									</span>
+								</div>
+							</div>
 							<?php
 						}
 						?>
@@ -295,8 +299,9 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	}
 
 	public function process_feeds() {
+		check_admin_referer( 'gf_process_feeds', 'gf_process_feeds' );
 		$form_id = absint( rgpost( 'formId' ) );
-		$entries = rgpost( 'leadIds' );
+		$leads = rgpost( 'leadIds' );
 		$feeds   = json_decode( rgpost( 'feeds' ) );
 
 		// Credits: Gravity Forms

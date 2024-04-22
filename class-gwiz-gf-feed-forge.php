@@ -209,7 +209,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 	public function action_process_feeds( $actions ) {
 		// Insert `Process Feeds` option before `Resend Notifications`
-		$insert_index = array_search( 'resend_notifications', array_keys( $actions ) );
+		$insert_index = array_search( 'resend_notifications', array_keys( $actions ), true );
 		return array_slice( $actions, 0, $insert_index, true ) +
 			['process_feeds' => __( 'Process Feeds', 'gf-feed-forge' )] +
 			array_slice( $actions, $insert_index, count( $actions ) - $insert_index, true );
@@ -246,7 +246,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 								<div class="panel-buttons">
 									<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" />
 									<span id="feeds_please_wait_container" style="display:none; margin-left: 5px;">
-										<img src="<?php echo GFCommon::get_base_url() ?>/images/spinner.svg" />
+										<img src="<?php echo GFCommon::get_base_url(); ?>/images/spinner.svg" />
 									</span>
 								</div>
 							</div>
@@ -268,7 +268,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		$addon_feeds = [];
 
 		foreach ( $feeds  as $feed ) {
-			if ( isset( $feed['addon_slug'] ) &&  in_array( $feed['addon_slug'], $slugs ) ) {
+			if ( isset( $feed['addon_slug'] ) && in_array( $feed['addon_slug'], $slugs, true ) ) {
 				$feed['title'] = $addons[ $feed['addon_slug'] ]->get_short_title();
 				$addon_feeds[] = $feed;
 			}
@@ -301,7 +301,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	public function process_feeds() {
 		check_admin_referer( 'gf_process_feeds', 'gf_process_feeds' );
 		$form_id = absint( rgpost( 'formId' ) );
-		$leads = rgpost( 'leadIds' );
+		$leads   = rgpost( 'leadIds' );
 		$feeds   = json_decode( rgpost( 'feeds' ) );
 
 		// Credits: Gravity Forms
@@ -311,15 +311,15 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			$search = rgpost( 'search' );
 			$star   = $filter == 'star' ? 1 : null;
 			$read   = $filter == 'unread' ? 0 : null;
-			$status = in_array( $filter, array( 'trash', 'spam' ) ) ? $filter : 'active';
+			$status = in_array( $filter, [ 'trash', 'spam' ] ) ? $filter : 'active';
 
 			$search_criteria['status'] = $status;
 
 			if ( $star ) {
-				$search_criteria['field_filters'][] = array( 'key' => 'is_starred', 'value' => (bool) $star );
+				$search_criteria['field_filters'][] = [ 'key' => 'is_starred', 'value' => (bool) $star ];
 			}
 			if ( ! is_null( $read ) ) {
-				$search_criteria['field_filters'][] = array( 'key' => 'is_read', 'value' => (bool) $read );
+				$search_criteria['field_filters'][] = [ 'key' => 'is_read', 'value' => (bool) $read ];
 			}
 
 			$search_field_id = rgpost( 'fieldId' );
@@ -333,11 +333,11 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					$key       = $key_array[0];
 					$val       = $key_array[1] . ':' . $val;
 				}
-				$search_criteria['field_filters'][] = array(
+				$search_criteria['field_filters'][] = [
 					'key'      => $key,
 					'operator' => rgempty( 'operator', $_POST ) ? 'is' : rgpost( 'operator' ),
 					'value'    => $val,
-				);
+				];
 			}
 
 			$leads = GFFormsModel::search_lead_ids( $form_id, $search_criteria );
@@ -371,12 +371,12 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 				}
 
 				gf_feed_processor()->push_to_queue(
-					array(
-						'addon' => $addons[ $feed['addon_slug'] ],
-						'feed'  => $feed,
+					[
+						'addon'    => $addons[ $feed['addon_slug'] ],
+						'feed'     => $feed,
 						'entry_id' => $entry['id'],
 						'form_id'  => $form['id'],
-					)
+					]
 				);
 			}
 		}

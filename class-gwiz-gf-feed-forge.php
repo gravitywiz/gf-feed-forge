@@ -236,7 +236,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 							<?php
 							foreach ( $feeds as $feed ) {
 								?>
-								<input type="checkbox" class="gform_feeds" value="<?php echo esc_attr( $feed['id'] ); ?>" id="feed_<?php echo esc_attr( $feed['id'] ); ?>"" />
+								<input type="checkbox" class="gform_feeds" value="<?php echo esc_attr( $feed['id'] ); ?>" id="feed_<?php echo esc_attr( $feed['id'] ); ?>" />
 								<label for="feed_<?php echo esc_attr( $feed['id'] ); ?>"><?php echo esc_html( $feed['title'] ); ?>: <?php echo esc_html( $feed['meta']['feed_name'] ); ?></label>
 								<br /><br />
 								<?php
@@ -380,5 +380,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 				);
 			}
 		}
+
+		gf_feed_processor()->save()->dispatch();
 	}
 }

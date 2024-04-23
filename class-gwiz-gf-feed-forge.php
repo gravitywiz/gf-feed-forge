@@ -229,7 +229,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 						<?php
 						if ( empty( $feeds ) || ! is_array( $feeds ) ) {
 							?>
-							<p class="description"><?php esc_html_e( 'You must configure at least one feed for this form before using Feed Forge.', 'gf-feed-forge' ); ?></p>
+							<div class="alert message error inline"><p><?php esc_html_e( 'You must configure at least one feed for this form before you can process feeds with Feed Forge.', 'gf-feed-forge' ); ?></p></div>
 							<?php
 						} else {
 							?>
@@ -237,7 +237,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 							foreach ( $feeds as $feed ) {
 								?>
 								<input type="checkbox" class="gform_feeds" value="<?php echo esc_attr( $feed['id'] ); ?>" id="feed_<?php echo esc_attr( $feed['id'] ); ?>" />
-								<label for="feed_<?php echo esc_attr( $feed['id'] ); ?>"><?php echo esc_html( $feed['title'] ); ?>: <?php echo esc_html( $feed['meta']['feed_name'] ); ?></label>
+								<label for="feed_<?php echo esc_attr( $feed['id'] ); ?>"><?php echo esc_html( $feed['title'] ); ?>: <?php echo esc_html( $this->get_feed_name( $feed ) ); ?></label>
 								<br /><br />
 								<?php
 							}
@@ -258,6 +258,16 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			</div>
 		</div>
 		<?php
+	}
+
+	public function get_feed_name( $feed ) {
+
+		// GP Google Sheets is a rebel apparently... ¯\_(ツ)_/¯
+		if ( isset( $feed['meta']['feed_name'] ) ) {
+			return $feed['meta']['feed_name'];
+		}
+
+		return rgar( $feed['meta'], 'feedName' );
 	}
 
 	public static function addon_feeds() {

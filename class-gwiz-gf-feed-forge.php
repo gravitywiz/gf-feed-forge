@@ -370,7 +370,6 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	 */
 	public static function process_entry_feeds( $entries, $feeds, $form_id ) {
 		$addons = self::registered_addons();
-		$form   = GFAPI::get_form( $form_id );
 
 		$feed_cache = array();
 
@@ -391,7 +390,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 						'addon'    => $addons[ $feed['addon_slug'] ],
 						'feed'     => $feed,
 						'entry_id' => $entry_id,
-						'form_id'  => $form['id'],
+						'form_id'  => $feed['form_id'],
 					]
 				);
 			}

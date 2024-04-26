@@ -372,10 +372,16 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		$addons = self::registered_addons();
 		$form   = GFAPI::get_form( $form_id );
 
+		$feed_cache = array();
+
 		foreach ( $entries as $entry_id ) {
-			$entry = GFAPI::get_entry( $entry_id );
 			foreach ( $feeds as $feed_id ) {
-				$feed = GFAPI::get_feed( $feed_id );
+				$feed = isset( $feed_cache[ $feed_id ] ) ? $feed_cache[ $feed_id ] : GFAPI::get_feed( $feed_id );
+
+				if ( ! isset( $feed_cache[ $feed_id ] ) ) {
+					$feed_cache[ $feed_id ] = $feed;
+				}
+
 				if ( ! is_array( $feed ) ) {
 					continue;
 				}
@@ -384,7 +390,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					[
 						'addon'    => $addons[ $feed['addon_slug'] ],
 						'feed'     => $feed,
-						'entry_id' => $entry['id'],
+						'entry_id' => $entry_id,
 						'form_id'  => $form['id'],
 					]
 				);

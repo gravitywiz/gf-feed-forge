@@ -66,10 +66,15 @@ jQuery(function($) {
 					);
 					closeModal(true);
 				} else {
-					displayMessage(response.data, 'error', '#feeds_container');
+					closeModal(false);
+					displayMessage(response.data.message, 'error', '#entry_list_form');
 				}
 			},
-		);
+		).fail(function (response) {
+			$('#feeds_please_wait_container').hide();
+			closeModal(false);
+			displayMessage(GFFF_ADMIN.genericErrorMsg, 'error', '#entry_list_form');
+		});
 	});
 
 	function resetProcessFeedsUI() {

@@ -28,6 +28,8 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	protected $_title       = 'Gravity Forms Feed Forge';
 	protected $_short_title = 'Feed Forge';
 
+	const TRANSIENT_CURRENT_BATCH_OPTION_NAMES = 'gfff_current_batch_option_names';
+
 	public static function get_instance() {
 		if ( self::$instance === null ) {
 			self::$instance = new self;
@@ -170,6 +172,39 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		add_action( 'gform_post_entry_list', [ $this, 'modal_markup' ] );
 		add_action( 'wp_ajax_gf_process_feeds', [ $this, 'process_feeds' ] );
 		add_filter( 'gform_entry_list_bulk_actions', [ $this, 'action_process_feeds' ] );
+		add_action( 'gform_pre_entry_list', [ $this, 'queue_status' ] );
+	}
+
+	public function queue_status() {
+		$batch_option_names = get_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES );
+
+		if ( ! is_array( $batch_option_names ) ) {
+			return;
+		}
+
+		$displayed_message = false;
+
+		foreach ( $batch_option_names as $batch_option_name ) {
+			if ( ! get_site_option( $batch_option_name ) ) {
+				continue;
+			}
+
+			$batch = get_site_option( $batch_option_name );
+
+			// Remaining entries to process
+			$remaining = count( $batch['data'] );
+
+			GFCommon::add_message( sprintf(
+				esc_html__( 'Feed Forge is currently processing a batch. %s remaining. Refresh to see the latest count.', 'gf-feed-forge' ),
+				sprintf( _n( '%s entry', '%s entries', $remaining, 'gf-feed-forge' ), number_format_i18n( $remaining ) )
+			) );
+
+			$displayed_message = true;
+		}
+
+		if ( ! $displayed_message ) {
+			delete_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES );
+		}
 	}
 
 	public function scripts() {
@@ -204,6 +239,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 				'modalDescription'  => __( 'Specify which feeds you would like to process for the selected entries.', 'gf-feed_forge' ),
 				'successMsg'        => __( 'Feeds for %s were successfully added to the queue for processing.', 'gf-feed-forge' ),
 				'noSelectedFeedMsg' => __( 'You must select at least one feed.', 'gf-feed_forge' ),
+				'genericErrorMsg'   => __( 'Failed to create batch to process feeds. Try selecting fewer entries.', 'gf-feed-forge' ),
 			]
 		);
 	}
@@ -355,9 +391,29 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			$leads = ! is_array( $leads ) ? array( $leads ) : $leads;
 		}
 
-		self::process_entry_feeds( $leads, $feeds, $form_id );
+		$batch_option_name = self::process_entry_feeds( $leads, $feeds, $form_id );
 
-		wp_send_json_success();
+		// If we don't have a batch_option_name, it failed to create the batch.
+		if ( empty( $batch_option_name ) ) {
+			wp_send_json_error( array(
+				'message' => __( 'Failed to create batch to process feeds. Try selecting fewer entries.', 'gf-feed-forge' ),
+			) );
+		}
+
+		// Set the batch_option_name in a transient, so we can display a message on the entry list page. Expire it in a day.
+		$batch_option_names = get_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES );
+
+		if ( ! is_array( $batch_option_names ) ) {
+			$batch_option_names = [];
+		}
+
+		$batch_option_names[] = $batch_option_name;
+
+		set_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES, $batch_option_names, DAY_IN_SECONDS );
+
+		wp_send_json_success( array(
+			'batch_option_name' => $batch_option_name,
+		) );
 	}
 
 	/**
@@ -367,6 +423,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	 * @param array $feeds The selected feeds.
 	 * @param int $form_id The entires form id.
 	 *
+	 * @return string The batch option name.
 	 */
 	public static function process_entry_feeds( $entries, $feeds, $form_id ) {
 		$addons = self::registered_addons();
@@ -396,6 +453,23 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			}
 		}
 
-		gf_feed_processor()->save()->dispatch();
+		// Intercept update_site_option to figure out what the option name is for the batch.
+		$batch_option_name = '';
+
+		$callback = function ( $option, $value, $network_id ) use ( &$batch_option_name ) {
+			$prefix = 'wp_gf_feed_processor_batch_blog_id_' . get_current_blog_id() . '_';
+
+			if ( strpos( $option, $prefix ) === 0 ) {
+				$batch_option_name = $option;
+			}
+		};
+
+		add_action( 'add_site_option', $callback, 10, 3 );
+		gf_feed_processor()->save();
+		remove_action( 'pre_update_site_option', $callback );
+
+		gf_feed_processor()->dispatch();
+
+		return $batch_option_name;
 	}
 }

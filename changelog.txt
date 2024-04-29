@@ -1,5 +1,5 @@
 # Changelog
 
-## 1.0.0
+## 1.0
 
-	- Hello World!
+- Time to forge a brand new world.

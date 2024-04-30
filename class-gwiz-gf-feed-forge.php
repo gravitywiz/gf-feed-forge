@@ -261,14 +261,14 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		<div id="feeds_modal_container" style="display:none;">
 			<div id="feeds_container">
 				<div class="panel-block-tabs__body--settings">
-					<div id="process_feeds_options">
+					<?php
+					if ( empty( $feeds ) || ! is_array( $feeds ) ) {
+						?>
+						<div class="alert message error inline"><p><?php esc_html_e( 'You must configure at least one feed for this form before you can process feeds with Feed Forge.', 'gf-feed-forge' ); ?></p></div>
 						<?php
-						if ( empty( $feeds ) || ! is_array( $feeds ) ) {
-							?>
-							<div class="alert message error inline"><p><?php esc_html_e( 'You must configure at least one feed for this form before you can process feeds with Feed Forge.', 'gf-feed-forge' ); ?></p></div>
-							<?php
-						} else {
-							?>
+					} else {
+						?>
+						<div id="process_feeds_options" style="height:340px;overflow:scroll;padding:0.2rem;/* prevents overflow cutoff on focus styles */">
 							<?php
 							foreach ( $feeds as $feed ) {
 								?>
@@ -278,18 +278,18 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 								<?php
 							}
 							?>
-							<div class="modal_footer">
-								<div class="panel-buttons">
-									<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" style="vertical-align:middle;" />
-									<span id="feeds_please_wait_container" style="display:none; margin-left: 5px;vertical-align:middle;">
+						</div>
+						<div class="modal_footer">
+							<div class="panel-buttons">
+								<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" style="vertical-align:middle;" />
+								<span id="feeds_please_wait_container" style="display:none; margin-left: 5px;vertical-align:middle;">
 										<img src="<?php echo GFCommon::get_base_url(); ?>/images/spinner.svg" />
 									</span>
-								</div>
 							</div>
-							<?php
-						}
-						?>
-					</div>
+						</div>
+						<?php
+					}
+					?>
 				</div>
 			</div>
 		</div>

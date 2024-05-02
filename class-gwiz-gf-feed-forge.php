@@ -105,7 +105,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					'svg' => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/main/assets/images/icon.svg',
 				],
 				'banners'         => [
-					'low' => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/main/assets/images/banner.jpg',
+					'low' => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/main/assets/images/banner.png',
 				],
 				'requires_php'    => '5.6.0',
 			]

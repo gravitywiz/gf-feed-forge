@@ -426,9 +426,17 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	 * @return string The batch option name.
 	 */
 	public static function process_entry_feeds( $entries, $feeds, $form_id ) {
-		$addons = self::registered_addons();
-
+		$addons     = self::registered_addons();
 		$feed_cache = array();
+
+		/**
+		 * Filters whether to reprocess feeds that have already been processed.
+		 *
+		 * @param bool $reprocess_feeds Whether to reprocess feeds.
+		 *
+		 * @since 1.0.1
+		 */
+		$reprocess_feeds = gf_apply_filters( array( 'gfff_reprocess_feeds', $form_id ), false );
 
 		foreach ( $entries as $entry_id ) {
 			foreach ( $feeds as $feed_id ) {
@@ -442,9 +450,15 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					continue;
 				}
 
+				$addon = $addons[ $feed['addon_slug'] ];
+
+				if ( $reprocess_feeds ) {
+					self::clear_processed_feeds( $entry_id, $feed, $addon );
+				}
+
 				gf_feed_processor()->push_to_queue(
 					[
-						'addon'    => $addons[ $feed['addon_slug'] ],
+						'addon'    => $addon,
 						'feed'     => $feed,
 						'entry_id' => $entry_id,
 						'form_id'  => $feed['form_id'],
@@ -471,5 +485,19 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		gf_feed_processor()->dispatch();
 
 		return $batch_option_name;
+	}
+
+	public static function clear_processed_feeds( $entry_id, $feed, $addon ) {
+		$processed_feeds = $addon->get_feeds_by_entry( $entry_id );
+		if ( is_array( $processed_feeds ) && in_array( $feed['id'], $processed_feeds ) ) {
+			$all_processed_feeds = gform_get_meta( $entry_id, 'processed_feeds' );
+
+			// Remove feed id from processed feeds
+			$key = array_search( $feed['id'], $processed_feeds );
+			unset( $processed_feeds[ $key ] );
+			$all_processed_feeds[ $feed['addon_slug'] ] = array_values( $processed_feeds );
+
+			gform_update_meta( $entry_id, 'processed_feeds', $all_processed_feeds, $feed['form_id'] );
+		}
 	}
 }

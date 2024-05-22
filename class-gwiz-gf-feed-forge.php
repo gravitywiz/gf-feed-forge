@@ -391,6 +391,17 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			$leads = ! is_array( $leads ) ? array( $leads ) : $leads;
 		}
 
+		/**
+		 * Filters the selected entries.
+		 *
+		 * @param array $leads The selected entries.
+		 * @param array $feeds The selected feeds.
+		 * @param int $form_id The form ID.
+		 *
+		 * @since 1.0.2
+		 */
+		$leads = apply_filters( 'gfff_selected_entries', $leads, $feeds, $form_id );
+
 		$batch_option_name = self::process_entry_feeds( $leads, $feeds, $form_id );
 
 		// If we don't have a batch_option_name, it failed to create the batch.

@@ -398,7 +398,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		 * @param array $feeds The selected feeds.
 		 * @param int $form_id The form ID.
 		 *
-		 * @since 1.0.2
+		 * @since 1.0.1
 		 */
 		$leads = apply_filters( 'gfff_selected_entries', $leads, $feeds, $form_id );
 

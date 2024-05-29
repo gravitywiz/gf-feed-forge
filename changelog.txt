@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 | May 29, 2024
+
+- Added `gfff_selected_entries` filter hook.
+- Added `gfff_reprocess_feeds` filter hook.
+- Added plugin banner.
+
 ## 1.0
 
 - Time to forge a brand new world.

@@ -438,6 +438,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	 */
 	public static function process_entry_feeds( $entries, $feeds, $form_id ) {
 		$addons     = self::registered_addons();
+		$form       = GFAPI::get_form( $form_id );
 		$feed_cache = array();
 
 		/**
@@ -461,7 +462,23 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					continue;
 				}
 
-				$addon = $addons[ $feed['addon_slug'] ];
+				$addon         = $addons[ $feed['addon_slug'] ];
+				$entry         = GFAPI::get_entry( $entry_id );
+				$condition_met = $addon->is_feed_condition_met( $feed, $form, $entry );
+
+				/**
+				 * Filters whether to reprocess feeds that have already been processed.
+				 *
+				 * @param bool $condition_met Whether feed condition is met.
+				 * @param array $feed The current feed.
+				 * @param array $form The current form.
+				 * @param array $entry The current entry.
+				 *
+				 * @since 1.0.2
+				 */
+				if ( ! gf_apply_filters( array( 'gfff_condition_met', $form_id ), $condition_met, $feed, $form, $entry ) ) {
+					continue;
+				}
 
 				if ( $reprocess_feeds ) {
 					self::clear_processed_feeds( $entry_id, $feed, $addon );

@@ -462,21 +462,21 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					continue;
 				}
 
-				$addon         = $addons[ $feed['addon_slug'] ];
-				$entry         = GFAPI::get_entry( $entry_id );
-				$condition_met = $addon->is_feed_condition_met( $feed, $form, $entry );
+				$addon              = $addons[ $feed['addon_slug'] ];
+				$entry              = GFAPI::get_entry( $entry_id );
+				$feed_condition_met = $addon->is_feed_condition_met( $feed, $form, $entry );
 
 				/**
 				 * Filters whether to reprocess feeds that have already been processed.
 				 *
-				 * @param bool $condition_met Whether feed condition is met.
+				 * @param bool $feed_condition_met Whether feed condition is met.
 				 * @param array $feed The current feed.
 				 * @param array $form The current form.
 				 * @param array $entry The current entry.
 				 *
 				 * @since 1.0.2
 				 */
-				if ( ! gf_apply_filters( array( 'gfff_condition_met', $form_id ), $condition_met, $feed, $form, $entry ) ) {
+				if ( ! gf_apply_filters( array( 'gfff_feed_condition_met', $form_id ), $feed_condition_met, $feed, $form, $entry ) ) {
 					continue;
 				}
 

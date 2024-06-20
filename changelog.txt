@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2 | June 20, 2024
+
+- Added a check for feed conditions prior to processing feeds. This check can be filtered using the gfff_feed_condition_met PHP filter hook.
+
 ## 1.0.1 | May 29, 2024
 
 - Added `gfff_selected_entries` filter hook.

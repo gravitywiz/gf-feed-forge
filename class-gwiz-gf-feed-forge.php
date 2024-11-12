@@ -183,6 +183,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		}
 
 		$displayed_message = false;
+		$remaining         = 0;
 
 		foreach ( $batch_option_names as $batch_option_name ) {
 			if ( ! get_site_option( $batch_option_name ) ) {
@@ -192,15 +193,15 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			$batch = get_site_option( $batch_option_name );
 
 			// Remaining entries to process
-			$remaining = count( $batch['data'] );
-
-			GFCommon::add_message( sprintf(
-				esc_html__( 'Feed Forge is currently processing a batch. %s remaining. Refresh to see the latest count.', 'gf-feed-forge' ),
-				sprintf( _n( '%s entry', '%s entries', $remaining, 'gf-feed-forge' ), number_format_i18n( $remaining ) )
-			) );
+			$remaining += count( $batch['data'] );
 
 			$displayed_message = true;
 		}
+
+		GFCommon::add_message( sprintf(
+			esc_html__( 'Feed Forge is currently processing a batch. %s remaining. Refresh to see the latest count.', 'gf-feed-forge' ),
+			sprintf( _n( '%s entry', '%s entries', $remaining, 'gf-feed-forge' ), number_format_i18n( $remaining ) )
+		) );
 
 		if ( ! $displayed_message ) {
 			delete_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES );
@@ -268,7 +269,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 						<?php
 					} else {
 						?>
-						<div id="process_feeds_options" style="height:340px;overflow:scroll;padding:0.2rem;/* prevents overflow cutoff on focus styles */">
+						<div id="process_feeds_options" style="height:340px;padding:0.2rem;overflow:auto;">
 							<?php
 							foreach ( $feeds as $feed ) {
 								?>
@@ -279,17 +280,19 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 							}
 							?>
 						</div>
-						<div class="modal_footer">
-							<div class="panel-buttons">
-								<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" style="vertical-align:middle;" />
-								<span id="feeds_please_wait_container" style="display:none; margin-left: 5px;vertical-align:middle;">
-										<img src="<?php echo GFCommon::get_base_url(); ?>/images/spinner.svg" />
-									</span>
-							</div>
-						</div>
 						<?php
 					}
 					?>
+				</div>
+			</div>
+
+			<div class="modal_footer">
+				<div class="panel-buttons" style="display: flex;gap:1rem;align-content: center;">
+					<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" style="vertical-align:middle;" />
+
+					<div id="gfff-progress-bar" style="border:1px solid #ccc;height:20px;width:100%;padding:2px;border-radius:4px;align-self:center;display: none;">
+						<span style="display:block;height:100%;width:0;background-color:#999;border-radius:3px;transition:all 0.5s ease;"></span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -402,6 +405,15 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		 */
 		$leads = apply_filters( 'gfff_selected_entries', $leads, $feeds, $form_id );
 
+		$size   = $_POST['size'];
+		$page   = $_POST['page'];
+		$offset = ( $page * $size ) - $size;
+		$count  = max( 0, (int) $_POST['count'] );
+		$total  = count( $leads );
+
+		$leads = array_slice( $leads, $offset, $size );
+		$count = $count + count( $leads );
+
 		$batch_option_name = self::process_entry_feeds( $leads, $feeds, $form_id );
 
 		// If we don't have a batch_option_name, it failed to create the batch.
@@ -422,9 +434,12 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 		set_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES, $batch_option_names, DAY_IN_SECONDS );
 
-		wp_send_json_success( array(
-			'batch_option_name' => $batch_option_name,
-		) );
+		if ( $count >= $total ) {
+			wp_send_json_success( 'done' );
+		} else {
+			$page ++;
+			wp_send_json_success( compact( 'size', 'page', 'count', 'total', 'form_id' ) );
+		}
 	}
 
 	/**

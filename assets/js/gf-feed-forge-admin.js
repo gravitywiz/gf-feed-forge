@@ -21,6 +21,8 @@ jQuery(function($) {
 				'#TB_inline?width=600&height=455&inlineId=feeds_modal_container',
 				''
 			);
+
+			jQuery('#TB_ajaxContent').css('overflow', 'hidden');
 			return false;
 		}
 	});
@@ -43,45 +45,79 @@ jQuery(function($) {
 			return;
 		}
 
-		$('#feeds_please_wait_container').fadeIn();
+		$(this).prop('disabled', true);
+		$('#gfff-progress-bar').show();
 
+		gfffBatch($.toJSON(selectedFeeds), leadIds, 1000, 1, 0, null);
+	});
+
+	function gfffBatch(feeds, leadIds, size, page, count, total) {
 		$.post(
 			ajaxurl,
 			{
 				action: 'gf_process_feeds',
 				gf_process_feeds: GFFF_ADMIN.nonce,
-				feeds: $.toJSON(selectedFeeds),
-				leadIds: leadIds,
 				formId: GFFF_ADMIN.formId,
+				feeds,
+				leadIds,
+				size,
+				page,
+				count,
+				total,
 			},
 			function (response) {
-				$('#feeds_please_wait_container').hide();
-
 				if (response.success) {
-					var count =
-						leadIds == 0
-							? gformVars.countAllEntries
-							: leadIds.length;
-					displayMessage(
-						GFFF_ADMIN.successMsg.replace(
-							'%s',
-							count + "  " + getPlural(count, GFFF_ADMIN.entryString, GFFF_ADMIN.entriesString)
-						),
-						'success',
-						'#entry_list_form'
-					);
-					closeModal(true);
+					if (
+						typeof response.data == 'string' &&
+						response.data == 'done'
+					) {
+						var count =
+							leadIds == 0
+								? gformVars.countAllEntries
+								: leadIds.length;
+						displayMessage(
+							GFFF_ADMIN.successMsg.replace(
+								'%s',
+								`${count}  ${getPlural(count, GFFF_ADMIN.entryString, GFFF_ADMIN.entriesString)}`,
+							),
+							'success',
+							'#entry_list_form',
+						);
+						$('input[name="feed_process"]').prop('disabled', false);
+						closeModal(true);
+					} else {
+						$('#gfff-progress-bar span').width(
+							`${(response.data.count / response.data.total) * 100}%`,
+						);
+						gfffBatch(
+							feeds,
+							leadIds,
+							response.data.size,
+							response.data.page,
+							response.data.count,
+							response.data.total,
+						);
+					}
 				} else {
+					$('input[name="feed_process"]').prop('disabled', false);
 					closeModal(false);
-					displayMessage(response.data.message, 'error', '#entry_list_form');
+					displayMessage(
+						response.data.message,
+						'error',
+						'#entry_list_form',
+					);
 				}
-			}
+			},
 		).fail(function (response) {
-			$('#feeds_please_wait_container').hide();
+			$('input[name="feed_process"]').prop('disabled', false);
 			closeModal(false);
-			displayMessage(GFFF_ADMIN.genericErrorMsg, 'error', '#entry_list_form');
+			displayMessage(
+				GFFF_ADMIN.genericErrorMsg,
+				'error',
+				'#entry_list_form',
+			);
 		});
-	});
+	}
 
 	function resetProcessFeedsUI() {
 		$('.gform_feeds').prop('checked', false);

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0 | December 5, 2024
+
+- Improved handling of processing thousands of entries by adding a batcher which splits up queuing into multiple requests and shows a progress bar.
+
 ## 1.0.2 | June 20, 2024
 
 - Added a check for feed conditions prior to processing feeds. This check can be filtered using the gfff_feed_condition_met PHP filter hook.

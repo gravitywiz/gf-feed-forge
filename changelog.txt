@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1 | December 10, 2024
+
+- Fixed auto-updater pointing to incorrect URLs for banner and readme.
+
 ## 1.1.0 | December 5, 2024
 
 - Improved handling of processing thousands of entries by adding a batcher which splits up queuing into multiple requests and shows a progress bar.

@@ -290,8 +290,8 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 				<div class="panel-buttons" style="display: flex;gap:1rem;align-content: center;">
 					<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" style="vertical-align:middle;" />
 
-					<div id="gfff-progress-bar" style="border:1px solid #ccc;height:20px;width:100%;padding:2px;border-radius:4px;align-self:center;display: none;">
-						<span style="display:block;height:100%;width:0;background-color:#999;border-radius:3px;transition:all 0.5s ease;"></span>
+					<div id="gfff-progress-bar" style="border:1px solid #e2e8f0;height:20px;width:100%;padding:2px;border-radius:4px;align-self:center;display: none;">
+						<span style="display:block;height:100%;width:0;background-color:#3e7da6;border-radius:3px;transition:all 0.5s ease;"></span>
 					</div>
 				</div>
 			</div>

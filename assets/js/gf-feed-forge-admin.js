@@ -58,6 +58,7 @@ jQuery(function($) {
 				action: 'gf_process_feeds',
 				gf_process_feeds: GFFF_ADMIN.nonce,
 				formId: GFFF_ADMIN.formId,
+				reprocess_feeds: $('#reprocess_feeds').is(':checked'),
 				feeds,
 				leadIds,
 				size,

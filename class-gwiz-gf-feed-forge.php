@@ -281,6 +281,9 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					}
 					?>
 				</div>
+				<input type="checkbox" class="gform_feeds" id="reprocess_feeds" />
+				<label for="reprocess_feeds"><?php echo esc_html_e( 'Reprocess feed that have already been processed.', 'gf-feed-forge' ); ?></label>
+
 			</div>
 
 			<div class="modal_footer">
@@ -460,7 +463,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		 *
 		 * @since 1.0.1
 		 */
-		$reprocess_feeds = gf_apply_filters( array( 'gfff_reprocess_feeds', $form_id ), false );
+		$reprocess_feeds = gf_apply_filters( array( 'gfff_reprocess_feeds', $form_id ), false ) || rgpost( 'reprocess_feeds' ) === 'true';
 
 		foreach ( $entries as $entry_id ) {
 			foreach ( $feeds as $feed_id ) {
@@ -534,6 +537,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 			// Remove feed id from processed feeds
 			$key = array_search( $feed['id'], $processed_feeds );
+
 			unset( $processed_feeds[ $key ] );
 			$all_processed_feeds[ $feed['addon_slug'] ] = array_values( $processed_feeds );
 

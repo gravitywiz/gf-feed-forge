@@ -286,21 +286,23 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 			<div class="modal_footer">
 				<div class="panel-buttons" style="display: flex;gap:1rem;align-content: center;">
-				<div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px;">
-					<!-- Process Feeds Button -->
-					<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" style="vertical-align:middle;" />
 
-					<!-- Reprocess Feeds Checkbox -->
-					<div style="display: flex; align-items: center; gap: 5px;">
-						<input type="checkbox" class="gform_feeds" id="reprocess_feeds" />
-						<label for="reprocess_feeds" style="margin: 0;"><?php esc_html_e( 'Reprocess feed that have already been processed.', 'gf-feed-forge' ); ?></label>
+					<div style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+						<!-- Process Feeds Button -->
+						<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" style="vertical-align:middle;" />
+
+						<!-- Reprocess Feeds Checkbox -->
+						<div style="display: flex; align-items: center; gap: 0.375rem;">
+							<input type="checkbox" class="gform_feeds" id="reprocess_feeds" style="margin:0;" />
+							<label for="reprocess_feeds" style="margin: 0;"><?php esc_html_e( 'Reprocess feed that have already been processed.', 'gf-feed-forge' ); ?></label>
+						</div>
 					</div>
-				</div>
 
-				<!-- Progress Bar -->
-				<div id="gfff-progress-bar" style="border: 1px solid #e2e8f0; height: 20px; width: 100%; padding: 2px; border-radius: 4px; display: none; margin-top: 10px;">
-					<span style="display: block; height: 100%; width: 0; background-color: #3e7da6; border-radius: 3px; transition: all 0.5s ease;"></span>
-				</div>
+					<!-- Progress Bar -->
+					<div id="gfff-progress-bar" style="border: 1px solid #e2e8f0; height: 20px; width: 100%; padding: 2px; border-radius: 4px; display: none; margin-top: 10px;">
+						<span style="display: block; height: 100%; width: 0; background-color: #3e7da6; border-radius: 3px; transition: all 0.5s ease;"></span>
+					</div>
+
 				</div>
 			</div>
 		</div>

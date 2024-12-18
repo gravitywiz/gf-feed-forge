@@ -22,6 +22,10 @@ jQuery(function($) {
 				''
 			);
 
+			$('#gfff-reprocess-feeds-container').show();
+			$('#gfff-progress-bar').hide();
+			$('#gfff-progress-bar span').width( '0' );
+
 			jQuery('#TB_ajaxContent').css('overflow', 'hidden');
 			return false;
 		}
@@ -46,9 +50,10 @@ jQuery(function($) {
 		}
 
 		$(this).prop('disabled', true);
+		$('#gfff-reprocess-feeds-container').hide();
 		$('#gfff-progress-bar').show();
 
-		gfffBatch($.toJSON(selectedFeeds), leadIds, 1000, 1, 0, null);
+		gfffBatch($.toJSON(selectedFeeds), leadIds, 10, 1, 0, null);
 	});
 
 	function gfffBatch(feeds, leadIds, size, page, count, total) {

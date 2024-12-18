@@ -53,7 +53,7 @@ jQuery(function($) {
 		$('#gfff-reprocess-feeds-container').hide();
 		$('#gfff-progress-bar').show();
 
-		gfffBatch($.toJSON(selectedFeeds), leadIds, 10, 1, 0, null);
+		gfffBatch($.toJSON(selectedFeeds), leadIds, 1000, 1, 0, null);
 	});
 
 	function gfffBatch(feeds, leadIds, size, page, count, total) {

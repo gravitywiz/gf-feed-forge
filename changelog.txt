@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2 | December 18, 2024
+
+- Added reprocess feeds UI option.
+
 ## 1.1.1 | December 10, 2024
 
 - Fixed auto-updater pointing to incorrect URLs for banner and readme.

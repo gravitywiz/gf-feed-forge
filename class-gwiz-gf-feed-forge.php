@@ -195,10 +195,12 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			$displayed_message = true;
 		}
 
-		GFCommon::add_message( sprintf(
-			esc_html__( 'Feed Forge is currently processing a batch. %s remaining. Refresh to see the latest count.', 'gf-feed-forge' ),
-			sprintf( _n( '%s entry', '%s entries', $remaining, 'gf-feed-forge' ), number_format_i18n( $remaining ) )
-		) );
+		if ( $remaining > 0 ) {
+			GFCommon::add_message( sprintf(
+				esc_html__( 'Feed Forge is currently processing a batch. %s remaining. Refresh to see the latest count.', 'gf-feed-forge' ),
+				sprintf( _n( '%s entry', '%s entries', $remaining, 'gf-feed-forge' ), number_format_i18n( $remaining ) )
+			) );
+		}
 
 		if ( ! $displayed_message ) {
 			delete_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES );

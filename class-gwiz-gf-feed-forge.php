@@ -195,10 +195,12 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			$displayed_message = true;
 		}
 
-		GFCommon::add_message( sprintf(
-			esc_html__( 'Feed Forge is currently processing a batch. %s remaining. Refresh to see the latest count.', 'gf-feed-forge' ),
-			sprintf( _n( '%s entry', '%s entries', $remaining, 'gf-feed-forge' ), number_format_i18n( $remaining ) )
-		) );
+		if ( $remaining > 0 ) {
+			GFCommon::add_message( sprintf(
+				esc_html__( 'Feed Forge is currently processing a batch. %s remaining. Refresh to see the latest count.', 'gf-feed-forge' ),
+				sprintf( _n( '%s entry', '%s entries', $remaining, 'gf-feed-forge' ), number_format_i18n( $remaining ) )
+			) );
+		}
 
 		if ( ! $displayed_message ) {
 			delete_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES );
@@ -281,15 +283,28 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					}
 					?>
 				</div>
+
 			</div>
 
 			<div class="modal_footer">
-				<div class="panel-buttons" style="display: flex;gap:1rem;align-content: center;">
-					<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" style="vertical-align:middle;" />
+				<div class="panel-buttons" style="display:flex;gap:1rem;align-items:center;">
 
-					<div id="gfff-progress-bar" style="border:1px solid #ccc;height:20px;width:100%;padding:2px;border-radius:4px;align-self:center;display: none;">
-						<span style="display:block;height:100%;width:0;background-color:#999;border-radius:3px;transition:all 0.5s ease;"></span>
+					<div style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+						<!-- Process Feeds Button -->
+						<input type="button" name="feed_process" value="<?php esc_attr_e( 'Process Feeds', 'gf-feed-forge' ); ?>" class="button" style="vertical-align:middle;" />
+
+						<!-- Reprocess Feeds Checkbox -->
+						<div id="gfff-reprocess-feeds-container" class="panel-block-tabs__body--settings">
+							<input type="checkbox" class="gform_feeds" id="reprocess_feeds" style="margin:0;" />
+							<label for="reprocess_feeds" style="margin: 0;"><?php esc_html_e( 'Reprocess feed that have already been processed.', 'gf-feed-forge' ); ?></label>
+						</div>
 					</div>
+
+					<!-- Progress Bar -->
+					<div id="gfff-progress-bar" style="border: 1px solid #e2e8f0; height: 1.375rem; width: 100%; padding: 2px; border-radius: 4px; display: none;">
+						<span style="display: block; height: 100%; width: 0; background-color: #3e7da6; border-radius: 3px; transition: all 0.5s ease;"></span>
+					</div>
+
 				</div>
 			</div>
 		</div>
@@ -460,7 +475,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		 *
 		 * @since 1.0.1
 		 */
-		$reprocess_feeds = gf_apply_filters( array( 'gfff_reprocess_feeds', $form_id ), false );
+		$reprocess_feeds = gf_apply_filters( array( 'gfff_reprocess_feeds', $form_id ), false ) || rgpost( 'reprocess_feeds' ) === 'true';
 
 		foreach ( $entries as $entry_id ) {
 			foreach ( $feeds as $feed_id ) {
@@ -534,6 +549,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 			// Remove feed id from processed feeds
 			$key = array_search( $feed['id'], $processed_feeds );
+
 			unset( $processed_feeds[ $key ] );
 			$all_processed_feeds[ $feed['addon_slug'] ] = array_values( $processed_feeds );
 

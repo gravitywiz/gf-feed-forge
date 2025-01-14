@@ -208,7 +208,6 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	}
 
 	public function scripts() {
-
 		$scripts = [
 			[
 				'handle'    => 'gf-feed-forge-admin',
@@ -219,20 +218,26 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 				'enqueue'   => [
 					[ 'admin_page' => ['entry_list' ] ],
 				],
-				'callback'  => [ $this, 'localize_admin_scripts' ],
+				'callback'  => [ $this, 'add_gform_pre_entry_list_hook' ],
 			],
 		];
 
 		return apply_filters( 'gfff_scripts', array_merge( parent::scripts(), $scripts ) );
 	}
 
-	public function localize_admin_scripts() {
+	public function add_gform_pre_entry_list_hook() {
+		// Add hook to gform_pre_entry_list which will give us a reliable form ID for the wp_localize_script call instead
+		// of relying on the $_GET['id'] which is not always available.
+		add_action( 'gform_pre_entry_list', [ $this, 'localize_admin_script' ] );
+	}
+
+	public function localize_admin_script( $form_id ) {
 		wp_localize_script(
 			'gf-feed-forge-admin',
 			'GFFF_ADMIN',
 			[
 				'nonce'             => wp_create_nonce( 'gf_process_feeds' ),
-				'formId'            => rgget( 'id' ),
+				'formId'            => $form_id,
 				'entryString'       => __( 'entry', 'gf-feed-forge' ),
 				'entriesString'     => __( 'entries', 'gf-feed-forge' ),
 				'modalHeader'       => __( 'Process Feeds', 'gf-feed_forge' ),
@@ -364,6 +369,13 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		$form_id = absint( rgpost( 'formId' ) );
 		$leads   = rgpost( 'leadIds' );
 		$feeds   = json_decode( rgpost( 'feeds' ) );
+
+		// Ensure that the form ID is provided.
+		if ( empty( $form_id ) ) {
+			wp_send_json_error( array(
+				'message' => __( 'Form ID is required.', 'gf-feed-forge' ),
+			) );
+		}
 
 		// Credits: Gravity Forms
 		if ( 0 == $leads ) {

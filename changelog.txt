@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.3 | January 15, 2025
+
+- Fixed issue where navigating to Forms » Entries (without selecting a form), selecting all entries, then clicking Process Feeds would result in all entries across all forms being processed rather than the current form being shown. This was due to a reliance on the `id` query parameter which was not available in this context. Additionally, a check has put in place in case a form ID is not passed.
+
 ## 1.1.2 | December 18, 2024
 
 - Added reprocess feeds UI option.

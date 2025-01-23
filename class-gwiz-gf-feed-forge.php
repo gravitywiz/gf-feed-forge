@@ -101,8 +101,14 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			[
 				'description_url' => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/README.md',
 				'changelog_url'   => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/changelog.txt',
+				'icons'           => [
+					'svg' => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/assets/images/icon.svg',
+					'1x'  => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/assets/images/icon-1x.png',
+					'2x'  => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/assets/images/icon-2x.png',
+				],
 				'banners'         => [
-					'low' => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/assets/images/banner.png',
+					'low'  => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/assets/images/banner-low.png',
+					'high' => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/assets/images/banner-high.png',
 				],
 				'requires_php'    => '5.6.0',
 			]

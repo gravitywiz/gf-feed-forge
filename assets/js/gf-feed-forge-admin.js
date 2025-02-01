@@ -37,7 +37,7 @@ jQuery(function($) {
 		$('.gform_feeds:checked').not('#reprocess_feeds').each(function () {
 			selectedFeeds.push($(this).val());
 		});
-console.log(selectedFeeds);
+
 		var leadIds = getLeadIds();
 
 		if (selectedFeeds.length <= 0) {

@@ -34,7 +34,7 @@ jQuery(function($) {
 	$('input[name="feed_process"]').on('click', function () {
 		var selectedFeeds = [];
 
-		$('.gform_feeds:checked').each(function () {
+		$('.gform_feeds:checked').not('#reprocess_feeds').each(function () {
 			selectedFeeds.push($(this).val());
 		});
 

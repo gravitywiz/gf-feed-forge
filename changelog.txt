@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.5 | February 12, 2025
+
+- Fixed a minor issue with "Reprocess" feed logic.
+- Fixed issue where incompatible feeds were shown in the "Process Feeds" modal.
+
 ## 1.1.4 | January 29, 2025
 
 - Added new updater icon and banner.

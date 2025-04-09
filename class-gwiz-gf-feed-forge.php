@@ -267,11 +267,15 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	 * Modal markup.
 	 */
 	public function modal_markup() {
-		// Get all feeds, except Gravity Flow.
-		$feeds = array_filter( self::addon_feeds(), function( $feed ) {
-			return rgar( $feed, 'addon_slug' ) != 'gravityflow';
-		});		
-		
+		// Make a list of all the feeds that are not supported by Feed Forge.
+		$unsupported_feeds = array(
+			'gravityflow',
+			'gravityformscoupons',
+		);
+
+		$feeds = array_filter( self::addon_feeds(), function ( $feed ) use ( $unsupported_feeds ) {
+			return ! in_array( rgar( $feed, 'addon_slug' ), $unsupported_feeds );
+		} );
 		?>
 		<div id="feeds_modal_container" style="display:none;">
 			<div id="feeds_container">

@@ -384,6 +384,8 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		$leads   = rgpost( 'leadIds' );
 		$feeds   = json_decode( rgpost( 'feeds' ) );
 
+		$_REQUEST['nonce'] = wp_create_nonce( 'wp_gf_feed_processor' );
+
 		// Ensure that the form ID is provided.
 		if ( empty( $form_id ) ) {
 			wp_send_json_error( array(

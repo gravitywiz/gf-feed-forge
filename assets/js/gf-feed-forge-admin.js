@@ -62,6 +62,7 @@ jQuery(function($) {
 			{
 				action: 'gf_process_feeds',
 				gf_process_feeds: GFFF_ADMIN.nonce,
+				processor_nonce: GFFF_ADMIN.processor_nonce, // Include processor-specific nonce in request for verification on GF side.
 				formId: GFFF_ADMIN.formId,
 				reprocess_feeds: $('#reprocess_feeds').is(':checked'),
 				feeds,

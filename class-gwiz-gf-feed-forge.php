@@ -243,6 +243,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			'GFFF_ADMIN',
 			[
 				'nonce'             => wp_create_nonce( 'gf_process_feeds' ),
+				'processor_nonce'   => wp_create_nonce( 'wp_gf_feed_processor' ), // Generate nonce for feed processor to pass to client
 				'formId'            => $form_id,
 				'entryString'       => __( 'entry', 'gf-feed-forge' ),
 				'entriesString'     => __( 'entries', 'gf-feed-forge' ),
@@ -384,7 +385,10 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		$leads   = rgpost( 'leadIds' );
 		$feeds   = json_decode( rgpost( 'feeds' ) );
 
-		$_REQUEST['nonce'] = wp_create_nonce( 'wp_gf_feed_processor' );
+		// Use client-provided nonce for processor verification.
+		if ( isset( $_POST['processor_nonce'] ) ) {
+			$_REQUEST['nonce'] = $_POST['processor_nonce'];
+		}
 
 		// Ensure that the form ID is provided.
 		if ( empty( $form_id ) ) {

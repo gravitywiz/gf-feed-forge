@@ -243,7 +243,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			'GFFF_ADMIN',
 			[
 				'nonce'             => wp_create_nonce( 'gf_process_feeds' ),
-				'processor_nonce'   => wp_create_nonce( 'wp_gf_feed_processor' ), // Generate nonce for feed processor to pass to client
+				'processor_nonce'   => wp_create_nonce( 'wp_gf_feed_processor' ), // Generate nonce for feed processor to pass to client. It is required by the processor during dispatch for nonce verification.
 				'formId'            => $form_id,
 				'entryString'       => __( 'entry', 'gf-feed-forge' ),
 				'entriesString'     => __( 'entries', 'gf-feed-forge' ),

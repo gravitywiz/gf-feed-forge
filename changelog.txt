@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.7 | April 28, 2025
+
+- Fixed compatibility issue with Gravity Forms v2.9.7 when processing feeds.
+
 ## 1.1.6 | April 10, 2025
 
 - Fixed issue where more incompatible feeds were shown in the "Process Feeds" modal.

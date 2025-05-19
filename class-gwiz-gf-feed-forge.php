@@ -252,6 +252,8 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 				'successMsg'        => __( 'Feeds for %s were successfully added to the queue for processing.', 'gf-feed-forge' ),
 				'noSelectedFeedMsg' => __( 'You must select at least one feed.', 'gf-feed_forge' ),
 				'genericErrorMsg'   => __( 'Failed to create batch to process feeds. Try selecting fewer entries.', 'gf-feed-forge' ),
+				'abortQueueMsg'     => __( 'Abort Queue', 'gf-feed-forge' ),
+				'abortSuccessMsg'   => __( 'The queue has been aborted.', 'gf-feed-forge' ),
 			]
 		);
 	}

@@ -1,4 +1,11 @@
 jQuery(function($) {
+	var gfffAbortQueue = false;
+	$(document).on('click', '#gfff-abort-queue', function(e) {
+		e.preventDefault();
+		gfffAbortQueue = true;
+		displayMessage(GFFF_ADMIN.abortSuccessMsg, 'error', '#entry_list_form');
+	});
+
 	$('#doaction, #doaction2').click(function () {
 		var action = $(this).siblings('select').val();
 		if (action == -1) {
@@ -33,6 +40,7 @@ jQuery(function($) {
 
 	$('input[name="feed_process"]').on('click', function () {
 		var selectedFeeds = [];
+		gfffAbortQueue = false;
 
 		$('.gform_feeds:checked').not('#reprocess_feeds').each(function () {
 			selectedFeeds.push($(this).val());
@@ -57,6 +65,12 @@ jQuery(function($) {
 	});
 
 	function gfffBatch(feeds, leadIds, size, page, count, total) {
+		if (gfffAbortQueue) {
+			$('input[name="feed_process"]').prop('disabled', false);
+			closeModal(false);
+			return;
+		}
+
 		$.post(
 			ajaxurl,
 			{
@@ -73,6 +87,11 @@ jQuery(function($) {
 				total,
 			},
 			function (response) {
+				if (gfffAbortQueue) {
+					$('input[name="feed_process"]').prop('disabled', false);
+					closeModal(false);
+					return;
+				}
 				if (response.success) {
 					if (
 						typeof response.data == 'string' &&
@@ -82,11 +101,12 @@ jQuery(function($) {
 							leadIds == 0
 								? gformVars.countAllEntries
 								: leadIds.length;
+						const abortBtn = `<a href="#" id="gfff-abort-queue" style="color:#a94442;float:right;margin-left:20px;">${GFFF_ADMIN.abortQueueMsg}</a>`;
 						displayMessage(
 							GFFF_ADMIN.successMsg.replace(
 								'%s',
 								`${count}  ${getPlural(count, GFFF_ADMIN.entryString, GFFF_ADMIN.entriesString)}`,
-							),
+							) + abortBtn,
 							'success',
 							'#entry_list_form',
 						);

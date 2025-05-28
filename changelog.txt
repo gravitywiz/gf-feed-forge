@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.8 | May 28, 2025
+
+- Added a kill switch to abort the queue being processed.
+
 ## 1.1.7 | April 28, 2025
 
 - Fixed compatibility issue with Gravity Forms v2.9.7 when processing feeds.

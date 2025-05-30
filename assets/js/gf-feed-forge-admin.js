@@ -3,10 +3,8 @@ jQuery(function($) {
 	$(document).on('click', '#gfff-abort-queue', function(e) {
 		e.preventDefault();
 		gfffAbortQueue = true;
+		displayMessage(GFFF_ADMIN.abortSuccessMsg, 'error', '#entry_list_form');
 
-		$(this).html('<span class="spinner is-active" style="float:none;margin:0;"></span> Aborting...');
-
-		// Send request to server to set abort flag
 		$.post(ajaxurl, {
 			action: 'gf_process_feeds',
 			gf_process_feeds: GFFF_ADMIN.nonce,
@@ -14,9 +12,9 @@ jQuery(function($) {
 		}).done(function(response) {
 			if (response.success) {
 				gfffAbortQueue = true;
-				displayMessage(GFFF_ADMIN.abortSuccessMsg, 'success', '#entry_list_form');
 				$('input[name="feed_process"]').prop('disabled', false);
 				closeModal(false);
+				location.reload();
 			}
 		});
 

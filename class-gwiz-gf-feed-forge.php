@@ -29,6 +29,8 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	protected $_short_title = 'Feed Forge';
 
 	const TRANSIENT_CURRENT_BATCH_OPTION_NAMES = 'gfff_current_batch_option_names';
+	const TRANSIENT_ABORT_FLAG                 = 'gfff_abort_processing';
+	const OPTION_BATCH_NAMES                   = 'gfff_current_batches';
 
 	public static function get_instance() {
 		if ( self::$instance === null ) {
@@ -407,8 +409,54 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		return apply_filters( 'gfff_registered_addons', $feed_addons );
 	}
 
+	public function abort_processing() {
+		$batch_names = get_option(self::OPTION_BATCH_NAMES, []);
+
+		foreach ( $batch_names as $batch_name ) {
+			delete_site_option($batch_name);
+		}
+
+		delete_option( self::OPTION_BATCH_NAMES );
+		delete_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES );
+		set_transient( self::TRANSIENT_ABORT_FLAG, true, 60 );
+	}
+
+	public function should_abort() {
+		return get_transient( self::TRANSIENT_ABORT_FLAG );
+	}
+
+	public function track_batch( $batch_name ) {
+		$batch_names   = get_option( self::OPTION_BATCH_NAMES, [] );
+		$batch_names[] = $batch_name;
+		update_option( self::OPTION_BATCH_NAMES, array_unique( $batch_names ) );
+	}
+
+	public function maybe_abort_processing() {
+		if ( get_transient( self::TRANSIENT_ABORT_FLAG ) ) {
+			delete_transient( self::TRANSIENT_ABORT_FLAG );
+			wp_send_json_success( array( 'aborted' => true ) );
+		}
+		return false;
+	}
+
 	public function process_feeds() {
 		check_admin_referer( 'gf_process_feeds', 'gf_process_feeds' );
+
+		$this->maybe_abort_processing();
+
+		// Handle abort request
+		if ( rgpost( 'abort_processing' )) {
+			$this->abort_processing();
+			wp_send_json_success( ['aborted' => true] );
+			return;
+		}
+		
+		// Check if we should abort
+		if ( $this->should_abort() ) {
+			wp_send_json_success( ['aborted' => true] );
+			return;
+		}
+
 		$form_id = absint( rgpost( 'formId' ) );
 		$leads   = rgpost( 'leadIds' );
 		$feeds   = json_decode( rgpost( 'feeds' ) );
@@ -503,6 +551,8 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		}
 
 		$batch_option_names[] = $batch_option_name;
+
+		$this->track_batch( $batch_option_name );
 
 		set_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES, $batch_option_names, DAY_IN_SECONDS );
 

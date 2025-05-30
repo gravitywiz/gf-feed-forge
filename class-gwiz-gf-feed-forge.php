@@ -418,7 +418,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 		delete_option( self::OPTION_BATCH_NAMES );
 		delete_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES );
-		set_transient( self::TRANSIENT_ABORT_FLAG, true, 60 );
+		set_transient( self::TRANSIENT_ABORT_FLAG, true, 10 );
 	}
 
 	public function should_abort() {
@@ -431,29 +431,17 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		update_option( self::OPTION_BATCH_NAMES, array_unique( $batch_names ) );
 	}
 
-	public function maybe_abort_processing() {
-		if ( get_transient( self::TRANSIENT_ABORT_FLAG ) ) {
-			delete_transient( self::TRANSIENT_ABORT_FLAG );
-			wp_send_json_success( array( 'aborted' => true ) );
-		}
-		return false;
-	}
-
 	public function process_feeds() {
 		check_admin_referer( 'gf_process_feeds', 'gf_process_feeds' );
-
-		$this->maybe_abort_processing();
 
 		// Handle abort request
 		if ( rgpost( 'abort_processing' )) {
 			$this->abort_processing();
-			wp_send_json_success( ['aborted' => true] );
 			return;
 		}
 		
 		// Check if we should abort
 		if ( $this->should_abort() ) {
-			wp_send_json_success( ['aborted' => true] );
 			return;
 		}
 

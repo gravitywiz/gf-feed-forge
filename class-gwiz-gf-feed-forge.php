@@ -354,14 +354,14 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		 *
 		 * @param bool $include_inactive Whether to include inactive feeds. Defaults to false.
 		 * @param int  $form_id          The ID of the current form.
-		 * 
+		 *
 		 * @since 1.1.9
 		 */
 		$include_inactive = gf_apply_filters( array( 'gfff_include_inactive_feeds', $form_id ), false );
 		// If the filter is true, we pass `null` to the API to get all feeds.
 		// Otherwise, we pass `true` to get only active feeds.
-		$is_active_param  = $include_inactive ? null : true;
-		$feeds            = GFAPI::get_feeds( null, $form_id, null, $is_active_param );
+		$is_active_param = $include_inactive ? null : true;
+		$feeds           = GFAPI::get_feeds( null, $form_id, null, $is_active_param );
 
 		foreach ( $feeds as $feed ) {
 			if ( isset( $feed['addon_slug'] ) && in_array( $feed['addon_slug'], $slugs, true ) ) {

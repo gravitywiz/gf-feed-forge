@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.9 | July 9, 2025
+
+- Added `gfff_include_inactive_feeds` filter to allow optionally processing inactive feeds.
+
 ## 1.1.8 | May 28, 2025
 
 - Added a kill switch to abort the queue being processed.

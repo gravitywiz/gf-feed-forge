@@ -558,6 +558,19 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					self::clear_processed_feeds( $entry_id, $feed, $addon );
 				}
 
+				// Apply gform_addon_pre_process_feeds filters to allow feed modification before processing
+				$feeds_to_process = apply_filters( 'gform_addon_pre_process_feeds', array( $feed ), $entry, $form );
+				$feeds_to_process = apply_filters( "gform_addon_pre_process_feeds_{$form_id}", $feeds_to_process, $entry, $form );
+				$feeds_to_process = apply_filters( "gform_{$addon->get_slug()}_pre_process_feeds", $feeds_to_process, $entry, $form );
+				$feeds_to_process = apply_filters( "gform_{$addon->get_slug()}_pre_process_feeds_{$form_id}", $feeds_to_process, $entry, $form );
+
+				// Skip if filters removed the feed or returned invalid data
+				if ( empty( $feeds_to_process ) || ! is_array( $feeds_to_process ) ) {
+					continue;
+				}
+
+				$feed = $feeds_to_process[0];
+
 				gf_feed_processor()->push_to_queue(
 					[
 						'addon'    => $addon,

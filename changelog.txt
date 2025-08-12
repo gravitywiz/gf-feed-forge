@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.10 | August 12, 2025
+
+- Added support for gform_addon_pre_process_feeds filter.
+
 ## 1.1.9 | July 9, 2025
 
 - Added `gfff_include_inactive_feeds` filter to allow optionally processing inactive feeds.

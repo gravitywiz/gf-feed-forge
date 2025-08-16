@@ -4,6 +4,22 @@ jQuery(function($) {
 		e.preventDefault();
 		gfffAbortQueue = true;
 		displayMessage(GFFF_ADMIN.abortSuccessMsg, 'error', '#entry_list_form');
+
+		$.post(ajaxurl, {
+			action: 'gf_process_feeds',
+			gf_process_feeds: GFFF_ADMIN.nonce,
+			abort_processing: true
+		}).done(function(response) {
+			if (response.success) {
+				gfffAbortQueue = true;
+				$('input[name="feed_process"]').prop('disabled', false);
+				closeModal(false);
+				location.reload();
+			}
+		});
+
+		// Hide the abort button after click
+		$(this).hide();
 	});
 
 	$('#doaction, #doaction2').click(function () {
@@ -87,6 +103,12 @@ jQuery(function($) {
 				total,
 			},
 			function (response) {
+				if (gfffAbortQueue || (response.success && response.data.aborted)) {
+					$('input[name="feed_process"]').prop('disabled', false);
+					closeModal(false);
+					return;
+				}
+
 				if (gfffAbortQueue) {
 					$('input[name="feed_process"]').prop('disabled', false);
 					closeModal(false);

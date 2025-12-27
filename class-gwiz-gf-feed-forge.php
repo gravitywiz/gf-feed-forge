@@ -68,8 +68,13 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	 * @credit https://github.com/google/site-kit-wp
 	 */
 	public function setup_autoload() {
+		$classes = include plugin_dir_path( __FILE__ ) . 'third-party/vendor/composer/autoload_classmap.php';
+		if ( empty( $classes ) || ! is_array( $classes ) ) {
+			return;
+		}
+
 		$class_map = array_merge(
-			include plugin_dir_path( __FILE__ ) . 'third-party/vendor/composer/autoload_classmap.php'
+			$classes
 		);
 
 		spl_autoload_register(
@@ -93,6 +98,10 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			'inc2734_github_plugin_updater_plugins_api_gravitywiz/gf-feed-forge',
 			[ $this, 'filter_auto_updater_response' ], 10, 2
 		);
+
+		if ( ! class_exists( 'GWiz_GF_Feed_Forge\Dependencies\Inc2734\WP_GitHub_Plugin_Updater\Bootstrap' ) ) {
+			return;
+		}
 
 		$this->updater = new GWiz_GF_Feed_Forge\Dependencies\Inc2734\WP_GitHub_Plugin_Updater\Bootstrap(
 			plugin_basename( plugin_dir_path( __FILE__ ) . 'gf-feed-forge.php' ),
@@ -144,6 +153,10 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 		$obj->homepage = 'https://gravitywiz.com/gf-feed-forge/';
 		$obj->author   = '<a href="https://gravitywiz.com/" target="_blank">Gravity Wiz</a>';
+
+		if ( ! class_exists( 'GWiz_GF_Feed_Forge\Dependencies\Parsedown' ) ) {
+			return $obj;
+		}
 
 		$parsedown = new GWiz_GF_Feed_Forge\Dependencies\Parsedown();
 		$changelog = trim( $obj->sections['changelog'] );
@@ -571,6 +584,10 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 				$feed = $feeds_to_process[0];
 
+				if ( ! function_exists( 'gf_feed_processor' ) ) {
+					continue;
+				}
+
 				gf_feed_processor()->push_to_queue(
 					[
 						'addon'    => $addon,
@@ -594,6 +611,11 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		};
 
 		add_action( 'add_site_option', $callback, 10, 3 );
+
+		if ( ! function_exists( 'gf_feed_processor' ) ) {
+			return '';
+		}
+
 		gf_feed_processor()->save();
 		remove_action( 'pre_update_site_option', $callback );
 

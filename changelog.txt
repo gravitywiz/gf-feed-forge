@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.11 | January 7, 2026
+
+- Fixed potential PHP fatal error. Credit: marcusdevcode.
+
 ## 1.1.10 | August 12, 2025
 
 - Added support for gform_addon_pre_process_feeds filter.

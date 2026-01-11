@@ -68,7 +68,11 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	 * @credit https://github.com/google/site-kit-wp
 	 */
 	public function setup_autoload() {
-		$classes = include plugin_dir_path( __FILE__ ) . 'third-party/vendor/composer/autoload_classmap.php';
+		$classes_file = plugin_dir_path( __FILE__ ) . 'third-party/vendor/composer/autoload_classmap.php';
+		if(!file_exists($classes_file)){
+			return;
+		}
+		$classes = include $classes_file;
 		if ( empty( $classes ) || ! is_array( $classes ) ) {
 			return;
 		}

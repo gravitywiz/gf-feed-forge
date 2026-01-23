@@ -217,10 +217,11 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		}
 
 		if ( $remaining > 0 ) {
+			$abort_btn = '<a href="#" id="gfff-abort-queue" style="color:#a94442;float:right;margin-left:20px;">' . esc_html__( 'Abort Queue', 'gf-feed-forge' ) . '</a>';
 			GFCommon::add_message( sprintf(
 				esc_html__( 'Feed Forge is currently processing a batch. %s remaining. Refresh to see the latest count.', 'gf-feed-forge' ),
 				sprintf( _n( '%s entry', '%s entries', $remaining, 'gf-feed-forge' ), number_format_i18n( $remaining ) )
-			) );
+			) . $abort_btn );
 		}
 
 		if ( ! $displayed_message ) {

@@ -602,13 +602,12 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 				 *
 				 * @since 1.1.12
 				 *
-				 * @param int         $entry_id The entry ID that was just queued.
-				 * @param array       $entry    The entry object.
-				 * @param array       $feed     The feed being processed.
-				 * @param array       $form     The form object.
-				 * @param GFFeedAddOn $addon    The addon instance.
+				 * @param array       $entry The entry object.
+				 * @param array       $feed  The feed being processed.
+				 * @param array       $form  The form object.
+				 * @param GFFeedAddOn $addon The addon instance.
 				 */
-				do_action( 'gfff_entry_queued', $entry_id, $entry, $feed, $form, $addon );
+				do_action( 'gfff_entry_queued', $entry, $feed, $form, $addon );
 			}
 		}
 

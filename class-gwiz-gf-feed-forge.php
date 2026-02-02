@@ -527,6 +527,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		$addons     = self::registered_addons();
 		$form       = GFAPI::get_form( $form_id );
 		$feed_cache = array();
+		$direct_processed_count = 0; // Track entries processed directly (not queued)
 
 		/**
 		 * Filters whether to reprocess feeds that have already been processed.
@@ -567,7 +568,11 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					continue;
 				}
 
-				if ( $reprocess_feeds ) {
+				// Check if this is a previously processed entry for a GC plugin.
+				$is_gc_plugin             = substr( $feed['addon_slug'], 0, 3 ) === 'gc-';
+				$was_previously_processed = $is_gc_plugin && self::was_entry_previously_processed( $entry_id, $feed, $addon );
+
+				if ( $reprocess_feeds && $was_previously_processed ) {
 					self::clear_processed_feeds( $entry_id, $feed, $addon );
 				}
 
@@ -588,14 +593,38 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					continue;
 				}
 
-				gf_feed_processor()->push_to_queue(
-					[
-						'addon'    => get_class( $addon ),
-						'feed'     => $feed,
-						'entry_id' => $entry_id,
-						'form_id'  => $feed['form_id'],
-					]
-				);
+				if ( $reprocess_feeds && $was_previously_processed ) {
+					// For GC plugins with previously processed entries, route to edit pathway
+					$resource_id = $addon->get_resource_id( $entry, $feed );
+
+					// Build the edit hook name from addon slug (e.g., gc-airtable -> gc_airtable_edit_entry_in_database)
+					$edit_hook_name = str_replace( '-', '_', $feed['addon_slug'] ) . '_edit_entry_in_database';
+
+					// Enqueue as edit action instead of normal add queue
+					$addon->enqueue_async_action(
+						$edit_hook_name,
+						array(
+							'entry_id'    => $entry_id,
+							'feed_id'     => $feed['id'],
+							'resource_id' => $resource_id,
+							'trigger'     => 'feed_forge_edit',
+						),
+						$entry_id
+					);
+
+					// Track that we processed this entry directly.
+					$direct_processed_count++;
+				} else {
+					// Normal processing for new entries or non-GC plugins.
+					gf_feed_processor()->push_to_queue(
+						[
+							'addon'    => get_class( $addon ),
+							'feed'     => $feed,
+							'entry_id' => $entry_id,
+							'form_id'  => $feed['form_id'],
+						]
+					);
+				}
 
 				/**
 				 * Fires after an entry is queued for feed processing.
@@ -633,7 +662,61 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 		gf_feed_processor()->dispatch();
 
+		// If we processed some entries directly but have no batch, create a dummy batch name
+		if ( empty( $batch_option_name ) && $direct_processed_count > 0 ) {
+			$batch_option_name = 'direct_processed_' . time() . '_' . rand( 1000, 9999 );
+		}
+
 		return $batch_option_name;
+	}
+
+	/**
+	 * Check if an entry was previously processed by a specific feed.
+	 * This helps determine if we're dealing with an edit vs a new entry.
+	 *
+	 * @param int $entry_id The entry ID.
+	 * @param array $feed The feed array.
+	 * @param GFFeedAddOn $addon The addon instance.
+	 * @return bool True if entry was previously processed by this feed.
+	 */
+	public static function was_entry_previously_processed( $entry_id, $feed, $addon ) {
+		$feed_id = $feed['id'];
+
+		// Check standard processed_feeds meta first
+		$processed_feeds = $addon->get_feeds_by_entry( $entry_id );
+		if ( is_array( $processed_feeds ) && in_array( $feed_id, $processed_feeds ) ) {
+			return true;
+		}
+
+		$entry = GFAPI::get_entry( $entry_id );
+
+		// Check if addon uses External_Service_Feed_Processor trait (GC plugins)
+		if ( method_exists( $addon, 'get_resource_id' ) ) {
+			// Check for resource ID
+			$resource_id = $addon->get_resource_id( $entry, $feed );
+			if ( $resource_id ) {
+				return true;
+			}
+
+			// Check for custom meta patterns
+			$slug              = $addon->get_slug();
+			$resource_meta_key = "{$slug}_resource_id_{$feed_id}";
+			$resource_id       = gform_get_meta( $entry_id, $resource_meta_key );
+			if ( $resource_id ) {
+				return true;
+			}
+
+			$inserted_time = $addon->entry_meta_get_inserted_time( $entry, $feed );
+			$updated_time  = method_exists( $addon, 'entry_meta_get_updated_time' )
+				? $addon->entry_meta_get_updated_time( $entry, $feed )
+				: null;
+
+			if ( $inserted_time || $updated_time ) {
+					return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static function clear_processed_feeds( $entry_id, $feed, $addon ) {

@@ -590,12 +590,24 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 				gf_feed_processor()->push_to_queue(
 					[
-						'addon'    => $addon,
+						'addon'    => get_class( $addon ),
 						'feed'     => $feed,
 						'entry_id' => $entry_id,
 						'form_id'  => $feed['form_id'],
 					]
 				);
+
+				/**
+				 * Fires after an entry is queued for feed processing.
+				 *
+				 * @since 1.1.12
+				 *
+				 * @param array       $entry The entry object.
+				 * @param array       $feed  The feed being processed.
+				 * @param array       $form  The form object.
+				 * @param GFFeedAddOn $addon The addon instance.
+				 */
+				do_action( 'gfff_entry_queued', $entry, $feed, $form, $addon );
 			}
 		}
 

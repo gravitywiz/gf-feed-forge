@@ -6,11 +6,11 @@ jQuery(function($) {
 		displayMessage(GFFF_ADMIN.abortSuccessMsg, 'error', '#entry_list_form');
 
 		$.post(ajaxurl, {
-			action: 'gf_process_feeds',
+			action: 'gf_process_feeds_cancel',
 			gf_process_feeds: GFFF_ADMIN.nonce,
-			abort_processing: true
 		}).done(function(response) {
 			if (response.success) {
+				$('#entry_list_form alert').closest('.alert').hide();
 				gfffAbortQueue = true;
 				$('input[name="feed_process"]').prop('disabled', false);
 				closeModal(false);
@@ -22,7 +22,7 @@ jQuery(function($) {
 		$(this).hide();
 	});
 
-	$('#doaction, #doaction2').click(function () {
+	$('#doaction, #doaction2').click(function() {
 		var action = $(this).siblings('select').val();
 		if (action == -1) {
 			return;
@@ -47,18 +47,18 @@ jQuery(function($) {
 
 			$('#gfff-reprocess-feeds-container').show();
 			$('#gfff-progress-bar').hide();
-			$('#gfff-progress-bar span').width( '0' );
+			$('#gfff-progress-bar span').width('0');
 
 			jQuery('#TB_ajaxContent').css('overflow', 'hidden');
 			return false;
 		}
 	});
 
-	$('input[name="feed_process"]').on('click', function () {
+	$('input[name="feed_process"]').on('click', function() {
 		var selectedFeeds = [];
 		gfffAbortQueue = false;
 
-		$('.gform_feeds:checked').not('#reprocess_feeds').each(function () {
+		$('.gform_feeds:checked').not('#reprocess_feeds').each(function() {
 			selectedFeeds.push($(this).val());
 		});
 
@@ -102,7 +102,7 @@ jQuery(function($) {
 				count,
 				total,
 			},
-			function (response) {
+			function(response) {
 				if (gfffAbortQueue || (response.success && response.data.aborted)) {
 					$('input[name="feed_process"]').prop('disabled', false);
 					closeModal(false);
@@ -157,7 +157,7 @@ jQuery(function($) {
 					);
 				}
 			},
-		).fail(function (response) {
+		).fail(function(response) {
 			$('input[name="feed_process"]').prop('disabled', false);
 			closeModal(false);
 			displayMessage(

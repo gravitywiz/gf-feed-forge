@@ -189,6 +189,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 		add_action( 'gform_post_entry_list', [ $this, 'modal_markup' ] );
 		add_action( 'wp_ajax_gf_process_feeds', [ $this, 'process_feeds' ] );
+		add_action( 'wp_ajax_gf_process_feeds_cancel', [ $this, 'cancel_process_feeds' ] );
 		add_filter( 'gform_entry_list_bulk_actions', [ $this, 'action_process_feeds' ] );
 		add_action( 'gform_pre_entry_list', [ $this, 'queue_status' ] );
 	}
@@ -216,7 +217,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			$displayed_message = true;
 		}
 
-		if ( $remaining > 0 ) {
+		if ( $remaining > 0 && ! gf_feed_processor( gwiz_gf_feed_forge() )->is_cancelled() ) {
 			$abort_btn = '<a href="#" id="gfff-abort-queue" style="color:#a94442;float:right;margin-left:20px;">' . esc_html__( 'Abort Queue', 'gf-feed-forge' ) . '</a>';
 			GFCommon::add_message( sprintf(
 				esc_html__( 'Feed Forge is currently processing a batch. %s remaining. Refresh to see the latest count.', 'gf-feed-forge' ),
@@ -410,41 +411,20 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		return apply_filters( 'gfff_registered_addons', $feed_addons );
 	}
 
-	public function abort_processing() {
-		$batch_names = get_option(self::OPTION_BATCH_NAMES, []);
 
-		foreach ( $batch_names as $batch_name ) {
-			delete_site_option($batch_name);
-		}
 
-		delete_option( self::OPTION_BATCH_NAMES );
-		delete_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES );
-		set_transient( self::TRANSIENT_ABORT_FLAG, true, 10 );
-	}
+	public function cancel_process_feeds() {
+		check_admin_referer( 'gf_process_feeds', 'gf_process_feeds' );
 
-	public function should_abort() {
-		return get_transient( self::TRANSIENT_ABORT_FLAG );
-	}
+		gf_feed_processor( gwiz_gf_feed_forge() )->cancel();
 
-	public function track_batch( $batch_name ) {
-		$batch_names   = get_option( self::OPTION_BATCH_NAMES, [] );
-		$batch_names[] = $batch_name;
-		update_option( self::OPTION_BATCH_NAMES, array_unique( $batch_names ) );
+		wp_send_json_success( array(
+			'message' => __( 'Cancelling processing', 'gf-feed-forge' ),
+		));
 	}
 
 	public function process_feeds() {
 		check_admin_referer( 'gf_process_feeds', 'gf_process_feeds' );
-
-		// Handle abort request
-		if ( rgpost( 'abort_processing' )) {
-			$this->abort_processing();
-			return;
-		}
-		
-		// Check if we should abort
-		if ( $this->should_abort() ) {
-			return;
-		}
 
 		$form_id = absint( rgpost( 'formId' ) );
 		$leads   = rgpost( 'leadIds' );
@@ -541,8 +521,6 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 		$batch_option_names[] = $batch_option_name;
 
-		$this->track_batch( $batch_option_name );
-
 		set_transient( self::TRANSIENT_CURRENT_BATCH_OPTION_NAMES, $batch_option_names, DAY_IN_SECONDS );
 
 		if ( $count >= $total ) {
@@ -627,7 +605,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					continue;
 				}
 
-				gf_feed_processor()->push_to_queue(
+				gf_feed_processor( gwiz_gf_feed_forge() )->push_to_queue(
 					[
 						'addon'    => get_class( $addon ),
 						'feed'     => $feed,
@@ -667,10 +645,10 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			return '';
 		}
 
-		gf_feed_processor()->save();
+		gf_feed_processor( gwiz_gf_feed_forge() )->save();
 		remove_action( 'pre_update_site_option', $callback );
 
-		gf_feed_processor()->dispatch();
+		gf_feed_processor( gwiz_gf_feed_forge() )->dispatch();
 
 		return $batch_option_name;
 	}

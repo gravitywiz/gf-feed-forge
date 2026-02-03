@@ -29,6 +29,8 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	protected $_short_title = 'Feed Forge';
 
 	const TRANSIENT_CURRENT_BATCH_OPTION_NAMES = 'gfff_current_batch_option_names';
+	const TRANSIENT_ABORT_FLAG                 = 'gfff_abort_processing';
+	const OPTION_BATCH_NAMES                   = 'gfff_current_batches';
 
 	public static function get_instance() {
 		if ( self::$instance === null ) {
@@ -187,6 +189,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 		add_action( 'gform_post_entry_list', [ $this, 'modal_markup' ] );
 		add_action( 'wp_ajax_gf_process_feeds', [ $this, 'process_feeds' ] );
+		add_action( 'wp_ajax_gf_process_feeds_cancel', [ $this, 'cancel_process_feeds' ] );
 		add_filter( 'gform_entry_list_bulk_actions', [ $this, 'action_process_feeds' ] );
 		add_action( 'gform_pre_entry_list', [ $this, 'queue_status' ] );
 	}
@@ -214,11 +217,12 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			$displayed_message = true;
 		}
 
-		if ( $remaining > 0 ) {
+		if ( $remaining > 0 && ! gf_feed_processor( gwiz_gf_feed_forge() )->is_cancelled() ) {
+			$abort_btn = '<a href="#" id="gfff-abort-queue" style="color:#a94442;float:right;margin-left:20px;">' . esc_html__( 'Abort Queue', 'gf-feed-forge' ) . '</a>';
 			GFCommon::add_message( sprintf(
 				esc_html__( 'Feed Forge is currently processing a batch. %s remaining. Refresh to see the latest count.', 'gf-feed-forge' ),
 				sprintf( _n( '%s entry', '%s entries', $remaining, 'gf-feed-forge' ), number_format_i18n( $remaining ) )
-			) );
+			) . $abort_btn );
 		}
 
 		if ( ! $displayed_message ) {
@@ -407,8 +411,21 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		return apply_filters( 'gfff_registered_addons', $feed_addons );
 	}
 
+
+
+	public function cancel_process_feeds() {
+		check_admin_referer( 'gf_process_feeds', 'gf_process_feeds' );
+
+		gf_feed_processor( gwiz_gf_feed_forge() )->cancel();
+
+		wp_send_json_success( array(
+			'message' => __( 'Cancelling processing', 'gf-feed-forge' ),
+		));
+	}
+
 	public function process_feeds() {
 		check_admin_referer( 'gf_process_feeds', 'gf_process_feeds' );
+
 		$form_id = absint( rgpost( 'formId' ) );
 		$leads   = rgpost( 'leadIds' );
 		$feeds   = json_decode( rgpost( 'feeds' ) );
@@ -588,7 +605,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 					continue;
 				}
 
-				gf_feed_processor()->push_to_queue(
+				gf_feed_processor( gwiz_gf_feed_forge() )->push_to_queue(
 					[
 						'addon'    => get_class( $addon ),
 						'feed'     => $feed,
@@ -628,10 +645,10 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			return '';
 		}
 
-		gf_feed_processor()->save();
+		gf_feed_processor( gwiz_gf_feed_forge() )->save();
 		remove_action( 'pre_update_site_option', $callback );
 
-		gf_feed_processor()->dispatch();
+		gf_feed_processor( gwiz_gf_feed_forge() )->dispatch();
 
 		return $batch_option_name;
 	}

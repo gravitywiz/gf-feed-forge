@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.12 | February 4, 2026
+
+- Fixed an issue with Abort Queue not functioning correctly.
+- Added a new `gfff_entry_queued` action fired after an entry is queued for feed processing.
+
 ## 1.1.11 | January 7, 2026
 
 - Fixed potential PHP fatal error. Credit: marcusdevcode.

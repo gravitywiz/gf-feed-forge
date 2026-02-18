@@ -49,7 +49,7 @@ jQuery(function($) {
 			$('#gfff-progress-bar').hide();
 			$('#gfff-progress-bar span').width('0');
 
-			jQuery('#TB_ajaxContent').css('overflow', 'hidden');
+			jQuery('#TB_ajaxContent').css({'overflow': 'hidden', 'position': 'static'});
 			return false;
 		}
 	});

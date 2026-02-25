@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.13 | February 25, 2026
+
+- Fixed an issue where clicking a bottom feed in a scrolled list caused the modal layout to shift.
+
 ## 1.1.12 | February 4, 2026
 
 - Fixed an issue with Abort Queue not functioning correctly.

@@ -3,7 +3,7 @@
  * Plugin Name: Gravity Forms Feed Forge
  * Description: Bulk process Gravity Forms feeds for existing entries with the power of Feed Forge. Works with most feed-based Gravity Forms add-ons (excluding payment add-ons).
  * Plugin URI: https://gravitywiz.com/gf-feed-forge/
- * Version: 1.1.12
+ * Version: 1.1.13
  * Author: Gravity Wiz
  * Author URI: https://gravitywiz.com/
  * License: GPL2
@@ -18,7 +18,7 @@
  * Gravity Forms Utility is originally licensed under GPL-2.0+, and this fork adheres to the same license terms.
  * See LICENSE file for more details.
  */
-define( 'GWIZ_GF_FEED_FORGE_VERSION', '1.1.12' );
+define( 'GWIZ_GF_FEED_FORGE_VERSION', '1.1.13' );
 
 defined( 'ABSPATH' ) || die();
 

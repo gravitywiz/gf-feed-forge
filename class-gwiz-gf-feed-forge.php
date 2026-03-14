@@ -187,11 +187,65 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 
 		load_plugin_textdomain( $this->_slug, false, basename( dirname( __file__ ) ) . '/languages/' );
 
+		add_action( 'admin_notices', [ $this, 'maybe_show_spellbook_notice' ] );
+		add_action( 'network_admin_notices', [ $this, 'maybe_show_spellbook_notice' ] );
+
 		add_action( 'gform_post_entry_list', [ $this, 'modal_markup' ] );
 		add_action( 'wp_ajax_gf_process_feeds', [ $this, 'process_feeds' ] );
 		add_action( 'wp_ajax_gf_process_feeds_cancel', [ $this, 'cancel_process_feeds' ] );
 		add_filter( 'gform_entry_list_bulk_actions', [ $this, 'action_process_feeds' ] );
 		add_action( 'gform_pre_entry_list', [ $this, 'queue_status' ] );
+	}
+
+	public function maybe_show_spellbook_notice() {
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		if ( $this->is_spellbook_installed() ) {
+			return;
+		}
+
+		$screen        = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		$notice_result = $this->should_show_spellbook_notice_on_screen( $screen );
+		if ( ! $notice_result ) {
+			return;
+		}
+
+		$message = sprintf(
+			'%s requires Spellbook for updates. You can download Spellbook <a href="%s" target="_blank" rel="noopener noreferrer">here</a> (it&#039;s free!).',
+			esc_html( $this->_title ),
+			esc_url( 'https://gravitywiz.com/documentation/spellbook/#installation-instructions' )
+		);
+
+		$classes = $notice_result == 1 ? 'notice notice-warning' : 'notice notice-error gf-notice';
+		printf(
+			'<div class="%s"><p>%s</p></div>',
+			esc_attr( $classes ),
+			wp_kses_post( $message )
+		);
+	}
+
+	private function is_spellbook_installed() {
+		return file_exists( WP_PLUGIN_DIR . '/spellbook/spellbook.php' );
+	}
+
+	private function should_show_spellbook_notice_on_screen( $screen ) {
+		if ( ! $screen ) {
+			return 0;
+		}
+
+		$allowed_bases = [ 'dashboard', 'update-core', 'plugins', 'plugin-install' ];
+		if ( in_array( $screen->base, $allowed_bases, true ) ) {
+			return 1;
+		}
+
+		$screen_id = (string) $screen->id;
+		if ( strpos( $screen_id, 'gf_edit_forms' ) !== false || strpos( $screen_id, 'gf_settings' ) !== false ) {
+			return 2;
+		}
+
+		return 0;
 	}
 
 	public function queue_status() {

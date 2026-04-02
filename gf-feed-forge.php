@@ -22,23 +22,15 @@ define( 'GWIZ_GF_FEED_FORGE_VERSION', '1.1.13' );
 
 defined( 'ABSPATH' ) || die();
 
+require plugin_dir_path( __FILE__ ) . 'vendor/autoload_packages.php';
+
+\Spellbook\Bootstrap::register( __FILE__ );
+
 add_action( 'gform_loaded', function() {
 	if ( ! method_exists( 'GFForms', 'include_feed_addon_framework' ) ) {
 		return;
 	}
 
-	require plugin_dir_path( __FILE__ ) . 'class-gwiz-gf-feed-forge.php';
-
 	GFAddOn::register( 'GWiz_GF_Feed_Forge' );
 }, 0 ); // Load before Gravity Flow
 
-/**
- * Returns an instance of the GWiz_GF_Feed_Forge class
- *
- * @see 1.0.0
- *
- * @return GWiz_GF_Code_Chest
- */
-function gwiz_gf_feed_forge() {
-	return GWiz_GF_Feed_Forge::get_instance();
-}

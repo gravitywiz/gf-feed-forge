@@ -12,7 +12,7 @@ GFForms::include_feed_addon_framework();
 
 class GWiz_GF_Feed_Forge extends GFAddOn {
 	/**
-	 * @var GWiz_GF_Feed_Forge\Dependencies\Inc2734\WP_GitHub_Plugin_Updater\Bootstrap The updater instance.
+	 * @var \Inc2734\WP_GitHub_Plugin_Updater\Bootstrap The updater instance.
 	 */
 	public $updater;
 
@@ -62,33 +62,7 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	public function pre_init() {
 		parent::pre_init();
 
-		$this->setup_autoload();
 		$this->init_auto_updater();
-	}
-
-	/**
-	 * @credit https://github.com/google/site-kit-wp
-	 */
-	public function setup_autoload() {
-		$classes = include plugin_dir_path( __FILE__ ) . 'third-party/vendor/composer/autoload_classmap.php';
-		if ( empty( $classes ) || ! is_array( $classes ) ) {
-			return;
-		}
-
-		$class_map = array_merge(
-			$classes
-		);
-
-		spl_autoload_register(
-			function ( $class ) use ( $class_map ) {
-				$namespace = 'GWiz_GF_Feed_Forge\\Dependencies';
-				if ( isset( $class_map[ $class ] ) && substr( $class, 0, strlen( $namespace ) ) === $namespace ) {
-					require_once $class_map[ $class ];
-				}
-			},
-			true,
-			true
-		);
 	}
 
 	/**
@@ -101,11 +75,11 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 			[ $this, 'filter_auto_updater_response' ], 10, 2
 		);
 
-		if ( ! class_exists( 'GWiz_GF_Feed_Forge\Dependencies\Inc2734\WP_GitHub_Plugin_Updater\Bootstrap' ) ) {
+		if ( ! class_exists( '\Inc2734\WP_GitHub_Plugin_Updater\Bootstrap' ) ) {
 			return;
 		}
 
-		$this->updater = new GWiz_GF_Feed_Forge\Dependencies\Inc2734\WP_GitHub_Plugin_Updater\Bootstrap(
+		$this->updater = new \Inc2734\WP_GitHub_Plugin_Updater\Bootstrap(
 			plugin_basename( plugin_dir_path( __FILE__ ) . 'gf-feed-forge.php' ),
 			'gravitywiz',
 			'gf-feed-forge',
@@ -156,11 +130,11 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		$obj->homepage = 'https://gravitywiz.com/gf-feed-forge/';
 		$obj->author   = '<a href="https://gravitywiz.com/" target="_blank">Gravity Wiz</a>';
 
-		if ( ! class_exists( 'GWiz_GF_Feed_Forge\Dependencies\Parsedown' ) ) {
+		if ( ! class_exists( '\Parsedown' ) ) {
 			return $obj;
 		}
 
-		$parsedown = new GWiz_GF_Feed_Forge\Dependencies\Parsedown();
+		$parsedown = new \Parsedown();
 		$changelog = trim( $obj->sections['changelog'] );
 
 		// Remove the "Changelog" h1.
@@ -668,3 +642,15 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 		}
 	}
 }
+
+/**
+ * Returns an instance of the GWiz_GF_Feed_Forge class
+ *
+ * @see 1.0.0
+ *
+ * @return GWiz_GF_Code_Chest
+ */
+function gwiz_gf_feed_forge() {
+	return GWiz_GF_Feed_Forge::get_instance();
+}
+

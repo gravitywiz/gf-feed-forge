@@ -12,11 +12,6 @@ GFForms::include_feed_addon_framework();
 
 class GWiz_GF_Feed_Forge extends GFAddOn {
 	/**
-	 * @var \Inc2734\WP_GitHub_Plugin_Updater\Bootstrap The updater instance.
-	 */
-	public $updater;
-
-	/**
 	 * @var null|GWiz_GF_Feed_Forge
 	 */
 	private static $instance = null;
@@ -57,98 +52,10 @@ class GWiz_GF_Feed_Forge extends GFAddOn {
 	}
 
 	/**
-	 * Load dependencies and initialize auto-updater
+	 * Load dependencies
 	 */
 	public function pre_init() {
 		parent::pre_init();
-
-		$this->init_auto_updater();
-	}
-
-	/**
-	 * Initialize the auto-updater.
-	 */
-	public function init_auto_updater() {
-		// Initialize GitHub auto-updater
-		add_filter(
-			'inc2734_github_plugin_updater_plugins_api_gravitywiz/gf-feed-forge',
-			[ $this, 'filter_auto_updater_response' ], 10, 2
-		);
-
-		if ( ! class_exists( '\Inc2734\WP_GitHub_Plugin_Updater\Bootstrap' ) ) {
-			return;
-		}
-
-		$this->updater = new \Inc2734\WP_GitHub_Plugin_Updater\Bootstrap(
-			plugin_basename( plugin_dir_path( __FILE__ ) . 'gf-feed-forge.php' ),
-			'gravitywiz',
-			'gf-feed-forge',
-			[
-				'description_url' => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/README.md',
-				'changelog_url'   => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/changelog.txt',
-				'icons'           => [
-					'svg' => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/assets/images/icon.svg',
-					'1x'  => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/assets/images/icon-1x.png',
-					'2x'  => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/assets/images/icon-2x.png',
-				],
-				'banners'         => [
-					'low'  => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/assets/images/banner-low.png',
-					'high' => 'https://raw.githubusercontent.com/gravitywiz/gf-feed-forge/master/assets/images/banner-high.png',
-				],
-				'requires_php'    => '5.6.0',
-			]
-		);
-	}
-
-	/**
-	 * Filter the GitHub auto-updater response to remove sections we don't need and update various fields.
-	 *
-	 * @param stdClass $obj
-	 * @param stdClass $response
-	 *
-	 * @return stdClass
-	 */
-	public function filter_auto_updater_response( $obj, $response ) {
-		$remove_sections = [
-			'installation',
-			'faq',
-			'screenshots',
-			'reviews',
-			'other_notes',
-		];
-
-		foreach ( $remove_sections as $section ) {
-			if ( isset( $obj->sections[ $section ] ) ) {
-				unset( $obj->sections[ $section ] );
-			}
-		}
-
-		if ( isset( $obj->active_installs ) ) {
-			unset( $obj->active_installs );
-		}
-
-		$obj->homepage = 'https://gravitywiz.com/gf-feed-forge/';
-		$obj->author   = '<a href="https://gravitywiz.com/" target="_blank">Gravity Wiz</a>';
-
-		if ( ! class_exists( '\Parsedown' ) ) {
-			return $obj;
-		}
-
-		$parsedown = new \Parsedown();
-		$changelog = trim( $obj->sections['changelog'] );
-
-		// Remove the "Changelog" h1.
-		$changelog = preg_replace( '/^# Changelog/m', '', $changelog );
-
-		// Remove the tab before the list item so it's not treated as code.
-		$changelog = preg_replace( '/^\t- /m', '- ', $changelog );
-
-		// Convert h2 to h4 to avoid weird styles that add a lot of whitespace.
-		$changelog = preg_replace( '/^## /m', '#### ', $changelog );
-
-		$obj->sections['changelog'] = $parsedown->text( $changelog );
-
-		return $obj;
 	}
 
 	/**

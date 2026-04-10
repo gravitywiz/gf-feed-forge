@@ -6,7 +6,8 @@
 	},
 	"require": {
 		"automattic/jetpack-autoloader": "^5.0.16",
-		"gravitywiz/spellbook-bootstrap": "^0.0.5"
+		"gravitywiz/spellbook-bootstrap": "^0.0.5",
+		"inc2734/wp-github-plugin-updater": "^3.1"
 	},
 	"scripts": {
 		"lint": "phpcs",
